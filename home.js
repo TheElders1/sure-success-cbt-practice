@@ -1,10 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize home dashboard only if we're on the home page
-    if (!document.getElementById('home-dashboard')) return;
+    const homeDashboard = document.getElementById('home-dashboard');
+    if (!homeDashboard) return;
+
+    // Safe localStorage getter
+    function safeGetLocalStorage(key, defaultValue = null) {
+        try {
+            const data = localStorage.getItem(key);
+            if (data === null) return defaultValue;
+            return JSON.parse(data);
+        } catch (error) {
+            console.error(`Error reading localStorage key "${key}":`, error);
+            return defaultValue;
+        }
+    }
+
+    // Safe DOM element getter
+    function safeGetElement(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.warn(`Element with id "${id}" not found`);
+        }
+        return element;
+    }
+
+    // Safe text content setter
+    function setTextContent(element, text) {
+        if (!element) return;
+        element.textContent = text || '';
+    }
 
     // Get user data manager from main.js
-    const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
-    const currentUser = userData.currentUser ? userData.users[userData.currentUser] : null;
+    const userData = safeGetLocalStorage('sureSuccessUserData', { users: {}, currentUser: null });
+    const currentUser = userData.currentUser && userData.users ? userData.users[userData.currentUser] : null;
 
     if (!currentUser) {
         // 🔒 NO USER DATA - Redirect back to login
@@ -18,25 +46,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeHomeDashboard(user) {
         // Update welcome message
-        document.getElementById('user-welcome').textContent = `Welcome back, ${user.name}! (${user.department})`;
+        const userWelcome = safeGetElement('user-welcome');
+        if (userWelcome) {
+            setTextContent(userWelcome, `Welcome back, ${user.name || 'User'}! (${user.department || 'Unknown'})`);
+        }
 
         // Populate course selection based on user's department
         populateCourseSelection(user.department);
 
         // Update stats
-        document.getElementById('total-quizzes').textContent = user.totalQuizzesTaken;
-        document.getElementById('average-score').textContent = `${user.averageScore}%`;
-        document.getElementById('study-streak').textContent = user.studyStreak;
-        document.getElementById('user-level').textContent = user.level;
+        const totalQuizzesEl = safeGetElement('total-quizzes');
+        const averageScoreEl = safeGetElement('average-score');
+        const studyStreakEl = safeGetElement('study-streak');
+        const userLevelEl = safeGetElement('user-level');
+
+        if (totalQuizzesEl) setTextContent(totalQuizzesEl, user.totalQuizzesTaken || 0);
+        if (averageScoreEl) setTextContent(averageScoreEl, `${user.averageScore || 0}%`);
+        if (studyStreakEl) setTextContent(studyStreakEl, user.studyStreak || 0);
+        if (userLevelEl) setTextContent(userLevelEl, user.level || 1);
 
         // Create performance chart (last 10 quizzes)
-        createPerformanceChart(user.quizHistory.slice(-10));
+        const quizHistory = Array.isArray(user.quizHistory) ? user.quizHistory : [];
+        createPerformanceChart(quizHistory.slice(-10));
 
         // Display recent achievements
-        displayRecentAchievements(user.achievements);
+        const achievements = Array.isArray(user.achievements) ? user.achievements : [];
+        displayRecentAchievements(achievements);
 
         // Display recent activity
-        displayRecentActivity(user.quizHistory.slice(-5));
+        displayRecentActivity(quizHistory.slice(-5));
 
         // Setup event listeners
         setupEventListeners();
@@ -46,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function animateWelcome() {
-        const welcomeEl = document.getElementById('user-welcome');
+        const welcomeEl = safeGetElement('user-welcome');
         if (welcomeEl) {
             welcomeEl.style.opacity = '0';
             welcomeEl.style.transform = 'translateY(-10px)';
@@ -107,93 +145,142 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         };
 
-        const courseSelect = document.getElementById('quick-course-select');
+        const courseSelect = safeGetElement('quick-course-select');
+        if (!courseSelect) return;
+        
         const courses = coursesByDepartment[department] || [];
         
-        // Clear existing options
+        // Clear existing options safely
         courseSelect.innerHTML = '<option value="" disabled selected>-- Select Course --</option>';
         
         // Add department-specific courses
         courses.forEach(course => {
-            courseSelect.innerHTML += `<option value="${course.code}">${course.code} - ${course.name}</option>`;
+            const option = document.createElement('option');
+            option.value = course.code;
+            option.textContent = `${course.code} - ${course.name}`;
+            courseSelect.appendChild(option);
         });
         
         // Add visual indicator of department
-        const departmentIndicator = document.createElement('div');
-        departmentIndicator.className = 'department-indicator';
-        departmentIndicator.innerHTML = `📚 Showing courses for: <strong>${department}</strong>`;
-        
-        // Insert department indicator before course selection
         const courseCard = courseSelect.closest('.action-card');
-        const existingIndicator = courseCard.querySelector('.department-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
+        if (courseCard) {
+            const existingIndicator = courseCard.querySelector('.department-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            const departmentIndicator = document.createElement('div');
+            departmentIndicator.className = 'department-indicator';
+            const indicatorText = document.createTextNode('📚 Showing courses for: ');
+            const strong = document.createElement('strong');
+            strong.textContent = department || 'Unknown';
+            departmentIndicator.appendChild(indicatorText);
+            departmentIndicator.appendChild(strong);
+            
+            const courseSelectionInline = courseCard.querySelector('.course-selection-inline');
+            if (courseSelectionInline) {
+                courseCard.insertBefore(departmentIndicator, courseSelectionInline);
+            }
         }
-        courseCard.insertBefore(departmentIndicator, courseCard.querySelector('.course-selection-inline'));
     }
 
     function createPerformanceChart(recentQuizzes) {
-        const ctx = document.getElementById('performance-chart').getContext('2d');
-        
-        if (recentQuizzes.length === 0) {
-            ctx.font = '16px Inter';
-            ctx.fillStyle = '#666';
-            ctx.textAlign = 'center';
-            ctx.fillText('No quiz data available yet', ctx.canvas.width / 2, ctx.canvas.height / 2);
+        const chartCanvas = safeGetElement('performance-chart');
+        if (!chartCanvas) {
+            console.error('Performance chart canvas not found');
             return;
         }
 
-        const labels = recentQuizzes.map((quiz, index) => `Quiz ${index + 1}`);
-        const scores = recentQuizzes.map(quiz => quiz.percentage);
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js library not loaded');
+            const ctx = chartCanvas.getContext('2d');
+            if (ctx) {
+                ctx.font = '16px Inter';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText('Chart library not available', chartCanvas.width / 2, chartCanvas.height / 2);
+            }
+            return;
+        }
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Score (%)',
-                    data: scores,
-                    borderColor: '#510F64',
-                    backgroundColor: 'rgba(81, 15, 100, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#510F64',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+        if (!Array.isArray(recentQuizzes) || recentQuizzes.length === 0) {
+            const ctx = chartCanvas.getContext('2d');
+            if (ctx) {
+                ctx.font = '16px Inter';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText('No quiz data available yet', chartCanvas.width / 2, chartCanvas.height / 2);
+            }
+            return;
+        }
+
+        try {
+            const labels = recentQuizzes.map((quiz, index) => `Quiz ${index + 1}`);
+            const scores = recentQuizzes.map(quiz => {
+                const percentage = quiz && typeof quiz.percentage === 'number' ? quiz.percentage : 0;
+                return Math.max(0, Math.min(100, percentage)); // Clamp between 0-100
+            });
+
+            new Chart(chartCanvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Score (%)',
+                        data: scores,
+                        borderColor: '#510F64',
+                        backgroundColor: 'rgba(81, 15, 100, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#510F64',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
                             }
                         }
-                    }
-                },
-                elements: {
-                    point: {
-                        hoverRadius: 8
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
                     }
                 }
+            });
+        } catch (error) {
+            console.error('Error creating performance chart:', error);
+            const ctx = chartCanvas.getContext('2d');
+            if (ctx) {
+                ctx.font = '16px Inter';
+                ctx.fillStyle = '#dc3545';
+                ctx.textAlign = 'center';
+                ctx.fillText('Error loading chart', chartCanvas.width / 2, chartCanvas.height / 2);
             }
-        });
+        }
     }
 
     function displayRecentAchievements(userAchievements) {
-        const container = document.getElementById('recent-achievements');
+        const container = safeGetElement('recent-achievements');
+        if (!container) return;
         
         const allAchievements = [
             { id: 'first_quiz', name: 'Getting Started', description: 'Complete your first quiz', icon: '🎯' },
@@ -205,155 +292,266 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'perfectionist', name: 'Perfectionist', description: 'Score 100% on 5 quizzes', icon: '🏆' }
         ];
 
+        const achievements = Array.isArray(userAchievements) ? userAchievements : [];
         const recentAchievements = allAchievements
-            .filter(achievement => userAchievements.includes(achievement.id))
+            .filter(achievement => achievements.includes(achievement.id))
             .slice(-3); // Show last 3 achievements
 
+        container.innerHTML = '';
         if (recentAchievements.length === 0) {
-            container.innerHTML = '<p class="no-data">🎯 Complete your first quiz to earn achievements!</p>';
+            const noDataP = document.createElement('p');
+            noDataP.className = 'no-data';
+            noDataP.textContent = '🎯 Complete your first quiz to earn achievements!';
+            container.appendChild(noDataP);
             return;
         }
 
-        container.innerHTML = '';
         recentAchievements.forEach(achievement => {
             const achievementEl = document.createElement('div');
             achievementEl.className = 'achievement-preview';
-            achievementEl.innerHTML = `
-                <div class="achievement-icon">${achievement.icon}</div>
-                <div class="achievement-content">
-                    <h4>${achievement.name}</h4>
-                    <p>${achievement.description}</p>
-                </div>
-            `;
+            
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'achievement-icon';
+            iconDiv.textContent = achievement.icon;
+            achievementEl.appendChild(iconDiv);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'achievement-content';
+            
+            const h4 = document.createElement('h4');
+            h4.textContent = achievement.name;
+            contentDiv.appendChild(h4);
+            
+            const p = document.createElement('p');
+            p.textContent = achievement.description;
+            contentDiv.appendChild(p);
+            
+            achievementEl.appendChild(contentDiv);
             container.appendChild(achievementEl);
         });
     }
 
     function displayRecentActivity(recentQuizzes) {
-        const container = document.getElementById('recent-activity-home');
+        const container = safeGetElement('recent-activity-home');
+        if (!container) return;
         
-        if (recentQuizzes.length === 0) {
-            container.innerHTML = '<p class="no-data">📋 No recent activity to display.</p>';
+        if (!Array.isArray(recentQuizzes) || recentQuizzes.length === 0) {
+            container.innerHTML = '';
+            const noDataP = document.createElement('p');
+            noDataP.className = 'no-data';
+            noDataP.textContent = '📋 No recent activity to display.';
+            container.appendChild(noDataP);
             return;
         }
 
         container.innerHTML = '';
         recentQuizzes.reverse().forEach(quiz => {
-            const date = new Date(quiz.date);
+            if (!quiz) return;
+            
+            const date = quiz.date ? new Date(quiz.date) : new Date();
             const timeAgo = getTimeAgo(date);
+            const percentage = quiz.percentage || 0;
             
             const activityEl = document.createElement('div');
             activityEl.className = 'activity-preview';
-            activityEl.innerHTML = `
-                <div class="activity-icon">${quiz.percentage === 100 ? '🏆' : quiz.percentage >= 80 ? '🎯' : '📝'}</div>
-                <div class="activity-content">
-                    <h4>${quiz.courseCode} - Segment ${quiz.segmentNumber}</h4>
-                    <p>Scored ${quiz.score}/${quiz.totalQuestions} (${quiz.percentage}%)</p>
-                    <span class="activity-time">${timeAgo}</span>
-                </div>
-                <div class="activity-score ${quiz.percentage >= 80 ? 'good-score' : quiz.percentage >= 50 ? 'ok-score' : 'poor-score'}">
-                    ${quiz.percentage}%
-                </div>
-            `;
+            
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'activity-icon';
+            iconDiv.textContent = percentage === 100 ? '🏆' : percentage >= 80 ? '🎯' : '📝';
+            activityEl.appendChild(iconDiv);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'activity-content';
+            
+            const h4 = document.createElement('h4');
+            h4.textContent = `${quiz.courseCode || 'Unknown'} - Segment ${quiz.segmentNumber || 'N/A'}`;
+            contentDiv.appendChild(h4);
+            
+            const p = document.createElement('p');
+            p.textContent = `Scored ${quiz.score || 0}/${quiz.totalQuestions || 0} (${percentage}%)`;
+            contentDiv.appendChild(p);
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'activity-time';
+            timeSpan.textContent = timeAgo;
+            contentDiv.appendChild(timeSpan);
+            
+            activityEl.appendChild(contentDiv);
+            
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = `activity-score ${percentage >= 80 ? 'good-score' : percentage >= 50 ? 'ok-score' : 'poor-score'}`;
+            scoreDiv.textContent = `${percentage}%`;
+            activityEl.appendChild(scoreDiv);
+            
             container.appendChild(activityEl);
         });
     }
 
     function setupEventListeners() {
         // Course selection change
-        document.getElementById('quick-course-select').addEventListener('change', function() {
-            const startBtn = document.getElementById('quick-start-btn');
-            startBtn.disabled = !this.value;
-        });
+        const courseSelect = safeGetElement('quick-course-select');
+        const startBtn = safeGetElement('quick-start-btn');
+        if (courseSelect && startBtn) {
+            courseSelect.addEventListener('change', function() {
+                startBtn.disabled = !this.value;
+            });
+        }
 
         // Quick start quiz
-        document.getElementById('quick-start-btn').addEventListener('click', function() {
-            const courseSelect = document.getElementById('quick-course-select');
-            const selectedCourse = courseSelect.value;
-            
-            if (selectedCourse) {
-                // Add loading state
-                this.disabled = true;
-                this.innerHTML = '<span class="btn-text">Starting Quiz...</span><span class="btn-icon">⏳</span>';
+        if (startBtn) {
+            startBtn.addEventListener('click', function() {
+                if (!courseSelect) return;
+                const selectedCourse = courseSelect.value;
                 
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
-                const currentUser = userData.users[userData.currentUser];
-                
-                const encodedName = encodeURIComponent(currentUser.name);
-                const encodedCourse = encodeURIComponent(selectedCourse);
-                const encodedDepartment = encodeURIComponent(currentUser.department);
-                
-                // Small delay for better UX
-                setTimeout(() => {
-                    window.location.href = `quiz.html?name=${encodedName}&course=${encodedCourse}&department=${encodedDepartment}`;
-                }, 500);
-            }
-        });
-
-        // Practice weak areas
-        document.getElementById('practice-weak-btn').addEventListener('click', function() {
-            this.disabled = true;
-            this.innerHTML = '<span class="btn-text">Finding Weak Areas...</span><span class="btn-icon">🔍</span>';
-            
-            const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
-            const currentUser = userData.users[userData.currentUser];
-            
-            // Find course with most weak areas
-            let maxWeakAreas = 0;
-            let targetCourse = null;
-            
-            Object.keys(currentUser.weakAreas || {}).forEach(courseCode => {
-                const weakCount = Object.keys(currentUser.weakAreas[courseCode]).length;
-                if (weakCount > maxWeakAreas) {
-                    maxWeakAreas = weakCount;
-                    targetCourse = courseCode;
+                if (selectedCourse) {
+                    // Add loading state
+                    this.disabled = true;
+                    const btnText = this.querySelector('.btn-text');
+                    const btnIcon = this.querySelector('.btn-icon');
+                    if (btnText) setTextContent(btnText, 'Starting Quiz...');
+                    if (btnIcon) setTextContent(btnIcon, '⏳');
+                    
+                    try {
+                        const userData = safeGetLocalStorage('sureSuccessUserData', { users: {}, currentUser: null });
+                        const currentUser = userData.currentUser && userData.users ? userData.users[userData.currentUser] : null;
+                        
+                        if (!currentUser) {
+                            console.error('Current user not found');
+                            this.disabled = false;
+                            if (btnText) setTextContent(btnText, 'Start Quiz');
+                            if (btnIcon) setTextContent(btnIcon, '🚀');
+                            return;
+                        }
+                        
+                        const encodedName = encodeURIComponent(currentUser.name || '');
+                        const encodedCourse = encodeURIComponent(selectedCourse);
+                        const encodedDepartment = encodeURIComponent(currentUser.department || '');
+                        
+                        // Small delay for better UX
+                        setTimeout(() => {
+                            window.location.href = `quiz.html?name=${encodedName}&course=${encodedCourse}&department=${encodedDepartment}`;
+                        }, 500);
+                    } catch (error) {
+                        console.error('Error starting quiz:', error);
+                        this.disabled = false;
+                        if (btnText) setTextContent(btnText, 'Start Quiz');
+                        if (btnIcon) setTextContent(btnIcon, '🚀');
+                    }
                 }
             });
-            
-            if (targetCourse) {
-                const encodedName = encodeURIComponent(currentUser.name);
-                const encodedCourse = encodeURIComponent(targetCourse);
-                const encodedDepartment = encodeURIComponent(currentUser.department);
+        }
+
+        // Practice weak areas
+        const practiceWeakBtn = safeGetElement('practice-weak-btn');
+        if (practiceWeakBtn) {
+            practiceWeakBtn.addEventListener('click', function() {
+                this.disabled = true;
+                const btnText = this.querySelector('.btn-text');
+                const btnIcon = this.querySelector('.btn-icon');
+                if (btnText) setTextContent(btnText, 'Finding Weak Areas...');
+                if (btnIcon) setTextContent(btnIcon, '🔍');
                 
-                setTimeout(() => {
-                    window.location.href = `quiz.html?name=${encodedName}&course=${encodedCourse}&department=${encodedDepartment}`;
-                }, 800);
-            } else {
-                // Reset button state
-                this.disabled = false;
-                this.innerHTML = '<span class="btn-text">Practice Weak Areas</span><span class="btn-icon">🎯</span>';
-                
-                // Show friendly message
-                const messageEl = document.createElement('div');
-                messageEl.className = 'friendly-message';
-                messageEl.innerHTML = `
-                    <div class="message-content">
-                        <div class="message-icon">🎯</div>
-                        <h4>Great News!</h4>
-                        <p>No weak areas identified yet. Take a few quizzes first to get personalized recommendations!</p>
-                        <button onclick="this.parentElement.parentElement.remove()" class="message-close">Got it!</button>
-                    </div>
-                `;
-                document.body.appendChild(messageEl);
-                
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    if (messageEl.parentElement) {
-                        messageEl.remove();
+                try {
+                    const userData = safeGetLocalStorage('sureSuccessUserData', { users: {}, currentUser: null });
+                    const currentUser = userData.currentUser && userData.users ? userData.users[userData.currentUser] : null;
+                    
+                    if (!currentUser) {
+                        console.error('Current user not found');
+                        this.disabled = false;
+                        if (btnText) setTextContent(btnText, 'Practice Weak Areas');
+                        if (btnIcon) setTextContent(btnIcon, '🎯');
+                        return;
                     }
-                }, 5000);
-            }
-        });
+                    
+                    // Find course with most weak areas
+                    let maxWeakAreas = 0;
+                    let targetCourse = null;
+                    
+                    const weakAreas = currentUser.weakAreas || {};
+                    Object.keys(weakAreas).forEach(courseCode => {
+                        const weakCount = Object.keys(weakAreas[courseCode] || {}).length;
+                        if (weakCount > maxWeakAreas) {
+                            maxWeakAreas = weakCount;
+                            targetCourse = courseCode;
+                        }
+                    });
+                    
+                    if (targetCourse) {
+                        const encodedName = encodeURIComponent(currentUser.name || '');
+                        const encodedCourse = encodeURIComponent(targetCourse);
+                        const encodedDepartment = encodeURIComponent(currentUser.department || '');
+                        
+                        setTimeout(() => {
+                            window.location.href = `quiz.html?name=${encodedName}&course=${encodedCourse}&department=${encodedDepartment}`;
+                        }, 800);
+                    } else {
+                        // Reset button state
+                        this.disabled = false;
+                        if (btnText) setTextContent(btnText, 'Practice Weak Areas');
+                        if (btnIcon) setTextContent(btnIcon, '🎯');
+                        
+                        // Show friendly message
+                        const messageEl = document.createElement('div');
+                        messageEl.className = 'friendly-message';
+                        
+                        const messageContent = document.createElement('div');
+                        messageContent.className = 'message-content';
+                        
+                        const iconDiv = document.createElement('div');
+                        iconDiv.className = 'message-icon';
+                        iconDiv.textContent = '🎯';
+                        messageContent.appendChild(iconDiv);
+                        
+                        const h4 = document.createElement('h4');
+                        h4.textContent = 'Great News!';
+                        messageContent.appendChild(h4);
+                        
+                        const p = document.createElement('p');
+                        p.textContent = 'No weak areas identified yet. Take a few quizzes first to get personalized recommendations!';
+                        messageContent.appendChild(p);
+                        
+                        const closeBtn = document.createElement('button');
+                        closeBtn.className = 'message-close';
+                        closeBtn.textContent = 'Got it!';
+                        closeBtn.addEventListener('click', () => messageEl.remove());
+                        messageContent.appendChild(closeBtn);
+                        
+                        messageEl.appendChild(messageContent);
+                        document.body.appendChild(messageEl);
+                        
+                        // Auto remove after 5 seconds
+                        setTimeout(() => {
+                            if (messageEl.parentElement) {
+                                messageEl.remove();
+                            }
+                        }, 5000);
+                    }
+                } catch (error) {
+                    console.error('Error finding weak areas:', error);
+                    this.disabled = false;
+                    if (btnText) setTextContent(btnText, 'Practice Weak Areas');
+                    if (btnIcon) setTextContent(btnIcon, '🎯');
+                }
+            });
+        }
 
         // Logout functionality
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            if (confirm('Are you sure you want to logout?')) {
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
-                userData.currentUser = null;
-                localStorage.setItem('eldersUserData', JSON.stringify(userData));
-                window.location.href = 'index.html';
-            }
-        });
+        const logoutBtn = safeGetElement('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    try {
+                        const userData = safeGetLocalStorage('sureSuccessUserData', {});
+                        userData.currentUser = null;
+                        localStorage.setItem('sureSuccessUserData', JSON.stringify(userData));
+                        window.location.href = 'index.html';
+                    } catch (error) {
+                        console.error('Error during logout:', error);
+                        alert('Error during logout. Please try again.');
+                    }
+                }
+            });
+        }
     }
 
     function getTimeAgo(date) {

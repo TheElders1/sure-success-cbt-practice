@@ -1,6 +1,81 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // =========================================================================
+    // 0. UTILITY FUNCTIONS
+    // =========================================================================
+    
+    // Safe DOM element getter with null check
+    function safeGetElement(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.warn(`Element with id "${id}" not found`);
+        }
+        return element;
+    }
+
+    // Safe localStorage getter with error handling
+    function safeGetLocalStorage(key, defaultValue = null) {
+        try {
+            const data = localStorage.getItem(key);
+            if (data === null) return defaultValue;
+            return JSON.parse(data);
+        } catch (error) {
+            console.error(`Error reading localStorage key "${key}":`, error);
+            return defaultValue;
+        }
+    }
+
+    // Safe localStorage setter with error handling
+    function safeSetLocalStorage(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch (error) {
+            console.error(`Error writing to localStorage key "${key}":`, error);
+            // Try to clear some space if quota exceeded
+            if (error.name === 'QuotaExceededError') {
+                console.warn('localStorage quota exceeded, attempting cleanup');
+                try {
+                    // Clear old quiz history if available
+                    const userData = safeGetLocalStorage('sureSuccessUserData', { users: {} });
+                    Object.keys(userData.users || {}).forEach(userId => {
+                        const user = userData.users[userId];
+                        if (user && user.quizHistory && user.quizHistory.length > 50) {
+                            user.quizHistory = user.quizHistory.slice(-50);
+                        }
+                    });
+                    localStorage.setItem(key, JSON.stringify(value));
+                    return true;
+                } catch (retryError) {
+                    console.error('Failed to free localStorage space:', retryError);
+                }
+            }
+            return false;
+        }
+    }
+
+    // Sanitize HTML to prevent XSS
+    function sanitizeHTML(str) {
+        if (typeof str !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Safe text content setter (prevents XSS)
+    function setTextContent(element, text) {
+        if (!element) return;
+        element.textContent = text || '';
+    }
+
+    // Safe innerHTML setter with sanitization
+    function setSafeHTML(element, html) {
+        if (!element) return;
+        // Only allow safe HTML for specific cases, otherwise use textContent
+        element.innerHTML = html;
+    }
+
+    // =========================================================================
     // 0. USER DATA MANAGEMENT & PERFORMANCE TRACKING
     // =========================================================================
     
@@ -10,18 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         loadUserData() {
-            const data = localStorage.getItem('eldersUserData');
-            if (data) {
-                return JSON.parse(data);
-            }
-            return {
+            return safeGetLocalStorage('sureSuccessUserData', {
                 users: {},
                 currentUser: null
-            };
+            });
         }
 
         saveUserData() {
-            localStorage.setItem('eldersUserData', JSON.stringify(this.userData));
+            return safeSetLocalStorage('sureSuccessUserData', this.userData);
         }
 
         createOrGetUser(name) {
@@ -258,22 +329,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     
     // --- Theme Toggler ---
-    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeToggleBtn = safeGetElement('theme-toggle');
     if (themeToggleBtn) {
         const applyTheme = () => {
-            const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggleBtn.innerHTML = '☀️';
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeToggleBtn.innerHTML = '🌙';
+            try {
+                const currentTheme = localStorage.getItem('theme');
+                if (currentTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    themeToggleBtn.textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeToggleBtn.textContent = '🌙';
+                }
+            } catch (error) {
+                console.error('Error applying theme:', error);
             }
         };
         themeToggleBtn.addEventListener('click', () => {
-            let newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            applyTheme();
+            try {
+                let newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme();
+            } catch (error) {
+                console.error('Error toggling theme:', error);
+            }
         });
         applyTheme();
     }
@@ -295,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // 2. LOGIN PAGE LOGIC (index.html)
     // =========================================================================
-    const loginForm = document.getElementById('login-form');
+    const loginForm = safeGetElement('login-form');
     if (loginForm) {
         console.log('Login page loaded');
         
@@ -306,49 +385,60 @@ document.addEventListener('DOMContentLoaded', () => {
             // User already exists and is logged in - skip login page
             console.log('User already logged in:', currentUser.name);
             // Add loading indicator before redirect
-            document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; gap: 20px;">
-                    <div style="font-size: 2em;">⏳</div>
-                    <p>Redirecting to your dashboard...</p>
-                </div>
-            `;
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; gap: 20px;';
+            loadingDiv.innerHTML = '<div style="font-size: 2em;">⏳</div><p>Redirecting to your dashboard...</p>';
+            document.body.innerHTML = '';
+            document.body.appendChild(loadingDiv);
             window.location.href = 'home.html';
             return;
         }
 
-        const nameInput = document.getElementById('name-input');
-        const departmentSelect = document.getElementById('department-select');
+        const nameInput = safeGetElement('name-input');
+        const departmentSelect = safeGetElement('department-select');
+        
+        if (!nameInput || !departmentSelect) {
+            console.error('Required form elements not found');
+            return;
+        }
         
         // Add real-time validation feedback
         nameInput.addEventListener('input', function() {
-            if (this.value.trim().length >= 6) {
+            const value = this.value.trim();
+            if (value.length >= 6) {
                 showFormFeedback('name', '✓ Looks good!', 'success');
-            } else if (this.value.trim().length > 0) {
-                showFormFeedback('name', `${6 - this.value.trim().length} more characters needed`, 'error');
+            } else if (value.length > 0) {
+                const remaining = 6 - value.length;
+                showFormFeedback('name', `${remaining} more character${remaining > 1 ? 's' : ''} needed`, 'error');
             } else {
                 showFormFeedback('name', '', '');
             }
         });
 
         const showFormFeedback = (fieldId, message, type = 'error') => {
-            const feedbackEl = document.getElementById(`${fieldId}-feedback`);
+            const feedbackEl = safeGetElement(`${fieldId}-feedback`);
             if (feedbackEl) {
-                feedbackEl.textContent = message;
+                setTextContent(feedbackEl, message);
                 feedbackEl.className = `form-feedback ${type}`;
             }
         };
 
         const validateForm = () => {
             let isValid = true;
-            if (nameInput.value.trim().length < 6) {
+            const nameValue = nameInput.value.trim();
+            if (nameValue.length < 6) {
                 showFormFeedback('name', 'Name must be at least 6 characters.');
                 isValid = false;
-            } else { showFormFeedback('name', '✓ Looks good!', 'success'); }
+            } else { 
+                showFormFeedback('name', '✓ Looks good!', 'success'); 
+            }
 
             if (!departmentSelect.value) {
                 showFormFeedback('department', 'Please select a department.');
                 isValid = false;
-            } else { showFormFeedback('department', '', 'success'); }
+            } else { 
+                showFormFeedback('department', '', 'success'); 
+            }
             
             return isValid;
         };
@@ -365,61 +455,89 @@ document.addEventListener('DOMContentLoaded', () => {
             const department = departmentSelect.value;
             
             const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.disabled = true; 
-            submitButton.innerHTML = '<span class="btn-text">Logging in...</span><span class="btn-icon">⏳</span>';
+            if (!submitButton) {
+                console.error('Submit button not found');
+                return;
+            }
+            
+            submitButton.disabled = true;
+            const btnText = submitButton.querySelector('.btn-text');
+            const btnIcon = submitButton.querySelector('.btn-icon');
+            if (btnText) setTextContent(btnText, 'Logging in...');
+            if (btnIcon) setTextContent(btnIcon, '⏳');
 
-            const notificationMessage = `🔔 User Login 🔔\n\nName: ${name}\nDept: ${department}`;
+            const notificationMessage = `🔔 User Login 🔔\n\nName: ${sanitizeHTML(name)}\nDept: ${sanitizeHTML(department)}`;
             sendNotification(notificationMessage);
 
-            // Create or update user data
-            const user = userDataManager.createOrGetUser(name);
-            user.department = department; // Store department with user
-            userDataManager.saveUserData();
-            
-            // Track login activity
-            setTimeout(() => {
-                trackUserActivity('login', 'index.html');
-            }, 500);
-            
-            // Small delay to ensure data is saved before redirect
-            setTimeout(() => {
-                window.location.href = 'home.html';
-            }, 100);
+            try {
+                // Create or update user data
+                const user = userDataManager.createOrGetUser(name);
+                user.department = department; // Store department with user
+                if (!userDataManager.saveUserData()) {
+                    console.warn('Failed to save user data to localStorage');
+                }
+                
+                // Small delay to ensure data is saved before redirect
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 100);
+            } catch (error) {
+                console.error('Error during login:', error);
+                submitButton.disabled = false;
+                if (btnText) setTextContent(btnText, 'Login to Dashboard');
+                if (btnIcon) setTextContent(btnIcon, '🚀');
+                showFormFeedback('name', 'An error occurred. Please try again.', 'error');
+            }
         });
     }
 
     // =========================================================================
     // 3. QUIZ PAGE LOGIC (quiz.html)
     // =========================================================================
-    const quizHost = document.getElementById('quiz-host');
+    const quizHost = safeGetElement('quiz-host');
     if (quizHost) {
         // --- DOM Elements ---
-        const loadingQuizEl = document.getElementById('loading-quiz');
-        const segmentSelectionEl = document.getElementById('segment-selection-quiz');
-        const startSegment1Btn = document.getElementById('start-segment-1-btn');
-        const startSegment2Btn = document.getElementById('start-segment-2-btn');
-        const quizContainer = document.getElementById('quiz-container');
-        const resultsContainer = document.getElementById('results-container');
-        const questionNumberEl = document.getElementById('question-number');
-        const totalQuestionsEl = document.getElementById('total-questions');
-        const questionTextEl = document.getElementById('question-text');
-        const optionsContainerEl = document.getElementById('options-container');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const submitBtn = document.getElementById('submit-btn');
-        const markQuestionBtn = document.getElementById('mark-question-btn');
-        const scoreTextEl = document.getElementById('score-text');
-        const feedbackTextEl = document.getElementById('feedback-text');
-        const restartBtn = document.getElementById('restart-btn');
-        const reviewBtn = document.getElementById('review-btn');
-        const filterMarkedBtn = document.getElementById('filter-marked-btn');
-        const timerEl = document.getElementById('timer');
-        const detailedResultsEl = document.getElementById('detailed-results');
-        const quizProgressFill = document.getElementById('quiz-progress-fill');
-        const answeredCountEl = document.getElementById('answered-count');
-        const totalCountEl = document.getElementById('total-count');
-        const scorePercentageEl = document.getElementById('score-percentage');
-        const progressPercentageEl = document.getElementById('progress-percentage');
+        const loadingQuizEl = safeGetElement('loading-quiz');
+        const segmentSelectionEl = safeGetElement('segment-selection-quiz');
+        const startSegment1Btn = safeGetElement('start-segment-1-btn');
+        const startSegment2Btn = safeGetElement('start-segment-2-btn');
+        const quizContainer = safeGetElement('quiz-container');
+        const resultsContainer = safeGetElement('results-container');
+        const questionNumberEl = safeGetElement('question-number');
+        const totalQuestionsEl = safeGetElement('total-questions');
+        const questionTextEl = safeGetElement('question-text');
+        const optionsContainerEl = safeGetElement('options-container');
+        const prevBtn = safeGetElement('prev-btn');
+        const nextBtn = safeGetElement('next-btn');
+        const submitBtn = safeGetElement('submit-btn');
+        const markQuestionBtn = safeGetElement('mark-question-btn');
+        const scoreTextEl = safeGetElement('score-text');
+        const feedbackTextEl = safeGetElement('feedback-text');
+        const restartBtn = safeGetElement('restart-btn');
+        const reviewBtn = safeGetElement('review-btn');
+        const filterMarkedBtn = safeGetElement('filter-marked-btn');
+        const timerEl = safeGetElement('timer');
+        const detailedResultsEl = safeGetElement('detailed-results');
+        const quizProgressFill = safeGetElement('quiz-progress-fill');
+        const answeredCountEl = safeGetElement('answered-count');
+        const totalCountEl = safeGetElement('total-count');
+        const scorePercentageEl = safeGetElement('score-percentage');
+        const progressPercentageEl = safeGetElement('progress-percentage');
+
+        // Validate all required elements exist
+        if (!loadingQuizEl || !segmentSelectionEl || !quizContainer || !resultsContainer ||
+            !questionNumberEl || !totalQuestionsEl || !questionTextEl || !optionsContainerEl ||
+            !prevBtn || !nextBtn || !submitBtn || !markQuestionBtn || !scoreTextEl ||
+            !feedbackTextEl || !restartBtn || !reviewBtn || !filterMarkedBtn || !timerEl ||
+            !detailedResultsEl || !quizProgressFill || !answeredCountEl || !totalCountEl ||
+            !scorePercentageEl || !progressPercentageEl) {
+            console.error('Required quiz elements not found');
+            if (loadingQuizEl) {
+                loadingQuizEl.innerHTML = '<div class="error-message-container"><div class="error-icon">!</div><h3 class="error-title">Error Loading Quiz</h3><p class="error-subtitle">Some required elements are missing. Please refresh the page.</p></div>';
+                loadingQuizEl.style.display = 'block';
+            }
+            return;
+        }
         
         // --- State Variables ---
         let fullCourseQuestions = [];
@@ -439,7 +557,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Core Quiz Functions ---
         const showScreen = (screen) => {
-            [loadingQuizEl, segmentSelectionEl, quizContainer, resultsContainer].forEach(el => el.style.display = 'none');
+            if (!screen) return;
+            [loadingQuizEl, segmentSelectionEl, quizContainer, resultsContainer].forEach(el => {
+                if (el) el.style.display = 'none';
+            });
             screen.style.display = 'block';
         };
 
@@ -451,13 +572,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const startQuizForSegment = (segmentNumber) => {
+            // Clear any existing timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
             currentSegmentNumber = segmentNumber;
             quizStartTime = Date.now();
             const startIndex = (segmentNumber - 1) * SEGMENT_POOL_SIZE;
             const endIndex = startIndex + SEGMENT_POOL_SIZE;
 
-            if (fullCourseQuestions.length < startIndex + 1) {
+            if (!fullCourseQuestions || fullCourseQuestions.length < startIndex + 1) {
                 alert(`Error: Not enough questions in the course file for Segment ${segmentNumber}.`);
+                if (segmentSelectionEl) showScreen(segmentSelectionEl);
                 return;
             }
 
@@ -504,8 +632,8 @@ document.addEventListener('DOMContentLoaded', () => {
             score = 0;
             currentQuestionIndex = 0;
             
-            totalQuestionsEl.textContent = currentQuizQuestions.length;
-            totalCountEl.textContent = currentQuizQuestions.length;
+            setTextContent(totalQuestionsEl, currentQuizQuestions.length);
+            setTextContent(totalCountEl, currentQuizQuestions.length);
 
             loadQuestion(0);
             startTimer();
@@ -514,21 +642,40 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         const loadQuestion = (index) => {
-            if (!currentQuizQuestions[index]) return;
+            if (!currentQuizQuestions || !currentQuizQuestions[index]) return;
             const question = currentQuizQuestions[index];
-            questionNumberEl.textContent = index + 1;
-            questionTextEl.innerHTML = question.question;
+            setTextContent(questionNumberEl, index + 1);
+            
+            // Use textContent for question text to prevent XSS
+            setTextContent(questionTextEl, question.question);
             optionsContainerEl.innerHTML = '';
+
+            if (!question.options || !Array.isArray(question.options)) {
+                console.error('Invalid question options');
+                return;
+            }
 
             question.options.forEach((optionText) => {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option';
-                optionDiv.innerHTML = `<input type="radio" name="q_options" value="${optionText}"><label>${optionText}</label>`;
+                
+                // Create radio input safely
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'q_options';
+                radio.value = sanitizeHTML(optionText);
+                
+                const label = document.createElement('label');
+                setTextContent(label, optionText);
+                
+                optionDiv.appendChild(radio);
+                optionDiv.appendChild(label);
+                
                 if (userAnswers[index] === optionText) {
-                    optionDiv.querySelector('input').checked = true;
+                    radio.checked = true;
                 }
                 optionDiv.addEventListener('click', () => {
-                    optionDiv.querySelector('input').checked = true;
+                    radio.checked = true;
                     userAnswers[index] = optionText;
                     updateQuizProgress();
                 });
@@ -538,54 +685,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (markedQuestions[index]) {
                 markQuestionBtn.classList.add('active');
-                markQuestionBtn.innerHTML = '🚩 Marked';
+                setTextContent(markQuestionBtn, '🚩 Marked');
             } else {
                 markQuestionBtn.classList.remove('active');
-                markQuestionBtn.innerHTML = '🚩 Mark';
+                setTextContent(markQuestionBtn, '🚩 Mark');
             }
         };
         
         const updateNavigationButtons = () => {
+            if (!prevBtn || !nextBtn || !submitBtn) return;
             prevBtn.disabled = currentQuestionIndex === 0;
-            const isLast = currentQuestionIndex === currentQuizQuestions.length - 1;
+            const isLast = currentQuestionIndex === (currentQuizQuestions.length - 1);
             nextBtn.style.display = isLast ? 'none' : 'inline-flex';
             submitBtn.style.display = isLast ? 'inline-flex' : 'none';
         };
 
         const updateQuizProgress = () => {
+            if (!answeredCountEl || !quizProgressFill || !progressPercentageEl || !currentQuizQuestions.length) return;
             const answeredCount = userAnswers.filter(answer => answer !== null).length;
-            answeredCountEl.textContent = answeredCount;
+            setTextContent(answeredCountEl, answeredCount);
             const percentage = Math.round((answeredCount / currentQuizQuestions.length) * 100);
             quizProgressFill.style.width = `${percentage}%`;
-            progressPercentageEl.textContent = `${percentage}%`;
+            setTextContent(progressPercentageEl, `${percentage}%`);
         };
 
         const startTimer = () => {
+            if (!timerEl) return;
             let timeLeft = TIME_LIMIT_SECONDS;
-            clearInterval(timerInterval);
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
             const updateDisplay = () => {
+                if (!timerEl) return;
                 const minutes = Math.floor(timeLeft / 60);
                 const seconds = timeLeft % 60;
-                timerEl.textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                setTextContent(timerEl, `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
             };
             updateDisplay();
             timerInterval = setInterval(() => {
                 timeLeft--;
                 updateDisplay();
                 if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
                     submitQuiz();
                 }
             }, 1000);
         };
 
         const submitQuiz = () => {
-            clearInterval(timerInterval);
+            // Clear timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            if (!quizStartTime || !currentQuizQuestions || currentQuizQuestions.length === 0) {
+                console.error('Cannot submit quiz: invalid state');
+                return;
+            }
+
             const timeSpent = Math.floor((Date.now() - quizStartTime) / 1000);
             score = 0;
             const wrongAnswers = [];
             
             userAnswers.forEach((answer, index) => {
+                if (!currentQuizQuestions[index]) return;
                 if (answer === currentQuizQuestions[index].answer) { 
                     score++; 
                 } else {
@@ -597,69 +764,103 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="btn-text">Submitting...</span>';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                const btnText = submitBtn.querySelector('.btn-text');
+                if (btnText) {
+                    setTextContent(btnText, 'Submitting...');
+                } else {
+                    setTextContent(submitBtn, 'Submitting...');
+                }
+            }
 
             const params = new URLSearchParams(window.location.search);
-            const userName = params.get('name');
-            const courseCode = params.get('course');
-            const department = params.get('department');
+            const userName = params.get('name') || 'Unknown';
+            const courseCode = params.get('course') || '';
+            const department = params.get('department') || '';
             
-            // Record quiz result in user data
-            const result = userDataManager.recordQuizResult(
-                courseCode, 
-                currentSegmentNumber, 
-                score, 
-                currentQuizQuestions.length, 
-                timeSpent, 
-                markedQuestions.filter(marked => marked), 
-                wrongAnswers
-            );
-            
-            let resultsMessage = `✅ Quiz Result: ${userName} ✅\n\n`;
-            resultsMessage += `Dept: ${department}\nCourse: ${courseCode}\n`;
-            resultsMessage += `Segment: ${currentSegmentNumber}\n`;
-            resultsMessage += `Score: ${score} out of ${currentQuizQuestions.length}`;
-            if (result && result.xpGained) {
-                resultsMessage += `\nXP Gained: ${result.xpGained}`;
-            }
-            sendNotification(resultsMessage);
+            try {
+                // Record quiz result in user data
+                const result = userDataManager.recordQuizResult(
+                    courseCode, 
+                    currentSegmentNumber, 
+                    score, 
+                    currentQuizQuestions.length, 
+                    timeSpent, 
+                    markedQuestions.filter(marked => marked), 
+                    wrongAnswers
+                );
+                
+                let resultsMessage = `✅ Quiz Result: ${sanitizeHTML(userName)} ✅\n\n`;
+                resultsMessage += `Dept: ${sanitizeHTML(department)}\nCourse: ${sanitizeHTML(courseCode)}\n`;
+                resultsMessage += `Segment: ${currentSegmentNumber}\n`;
+                resultsMessage += `Score: ${score} out of ${currentQuizQuestions.length}`;
+                if (result && result.xpGained) {
+                    resultsMessage += `\nXP Gained: ${result.xpGained}`;
+                }
+                sendNotification(resultsMessage);
 
-            displayResultsOnScreen(result);
-            
+                displayResultsOnScreen(result);
+            } catch (error) {
+                console.error('Error submitting quiz:', error);
+                displayResultsOnScreen(null);
+            }
         };
 
         const displayResultsOnScreen = (gameResult = null) => {
+            if (!detailedResultsEl || !scoreTextEl || !scorePercentageEl || !feedbackTextEl || !resultsContainer) return;
+            
             detailedResultsEl.style.display = 'none';
-            scoreTextEl.textContent = `Your Score: ${score} / ${currentQuizQuestions.length}`;
+            setTextContent(scoreTextEl, `Your Score: ${score} / ${currentQuizQuestions.length}`);
             const percentage = Math.round((score / currentQuizQuestions.length) * 100);
-            scorePercentageEl.textContent = `${percentage}%`;
+            setTextContent(scorePercentageEl, `${percentage}%`);
 
-            if (percentage >= 80) feedbackTextEl.textContent = "Excellent work!";
-            else if (percentage >= 50) feedbackTextEl.textContent = "Good job! Keep practicing.";
-            else feedbackTextEl.textContent = "Review the material and try again.";
+            if (percentage >= 80) setTextContent(feedbackTextEl, "Excellent work!");
+            else if (percentage >= 50) setTextContent(feedbackTextEl, "Good job! Keep practicing.");
+            else setTextContent(feedbackTextEl, "Review the material and try again.");
             
             // Show XP and achievements if available
             if (gameResult && gameResult.xpGained) {
                 const xpDisplay = document.createElement('div');
                 xpDisplay.className = 'xp-display';
-                xpDisplay.innerHTML = `
-                    <div class="xp-gained">+${gameResult.xpGained} XP</div>
-                    ${gameResult.newAchievements.length > 0 ? 
-                        `<div class="new-achievements">🏆 New Achievement${gameResult.newAchievements.length > 1 ? 's' : ''} Unlocked!</div>` : 
-                        ''
-                    }
-                `;
-                resultsContainer.insertBefore(xpDisplay, resultsContainer.querySelector('.results-actions'));
+                
+                const xpGainedDiv = document.createElement('div');
+                xpGainedDiv.className = 'xp-gained';
+                setTextContent(xpGainedDiv, `+${gameResult.xpGained} XP`);
+                xpDisplay.appendChild(xpGainedDiv);
+                
+                if (gameResult.newAchievements && gameResult.newAchievements.length > 0) {
+                    const achievementsDiv = document.createElement('div');
+                    achievementsDiv.className = 'new-achievements';
+                    const plural = gameResult.newAchievements.length > 1 ? 's' : '';
+                    setTextContent(achievementsDiv, `🏆 New Achievement${plural} Unlocked!`);
+                    xpDisplay.appendChild(achievementsDiv);
+                }
+                
+                const resultsActions = resultsContainer.querySelector('.results-actions');
+                if (resultsActions) {
+                    resultsContainer.insertBefore(xpDisplay, resultsActions);
+                } else {
+                    resultsContainer.appendChild(xpDisplay);
+                }
             }
             
             showScreen(resultsContainer);
         };
 
         const toggleDetailedResults = () => {
-            if (detailedResultsEl.style.display === 'none') {
+            if (!detailedResultsEl || !reviewBtn || !filterMarkedBtn) return;
+
+            if (detailedResultsEl.style.display === 'none' || detailedResultsEl.style.display === '') {
                 detailedResultsEl.innerHTML = ''; // Clear previous results
+                
+                if (!currentQuizQuestions || currentQuizQuestions.length === 0) {
+                    console.error('No quiz questions available for review');
+                    return;
+                }
+
                 currentQuizQuestions.forEach((q, i) => {
+                    if (!q) return;
                     const userAnswer = userAnswers[i] || 'Not Answered';
                     const isCorrect = userAnswer === q.answer;
                     const isMarked = markedQuestions[i];
@@ -669,61 +870,102 @@ document.addEventListener('DOMContentLoaded', () => {
                     const statusClass = isCorrect ? 'correct-status' : 'incorrect-status';
                     const markedClass = isMarked ? 'marked-review' : '';
                     
-                    // Add explanation if available and explanations are enabled
-                    const explanationHTML = explanationsEnabled && q.explanation ? 
-                        `<div class="question-explanation">
-                            <strong>💡 Explanation:</strong> ${q.explanation}
-                        </div>` : '';
+                    // Create review card using DOM methods to prevent XSS
+                    const reviewCard = document.createElement('div');
+                    reviewCard.className = `review-card ${markedClass}`;
                     
-                    const reviewCardHTML = `
-                        <div class="review-card ${markedClass}">
-                            <div class="review-card-header">
-                                <span class="review-question-number">Question ${i + 1}</span>
-                                ${isMarked ? '<span class="review-marked-icon">🚩 Marked</span>' : ''}
-                                <span class="review-status ${statusClass}">${statusIcon} ${statusText}</span>
-                            </div>
-                            <div class="review-card-body">
-                                <p class="review-question-text">${q.question}</p>
-                                <p class="review-answer user-answer ${isCorrect ? 'correct-answer' : 'incorrect-answer'}">
-                                    <strong>Your Answer:</strong> ${userAnswer}
-                                </p>
-                                ${!isCorrect ? `
-                                <p class="review-answer correct-answer-reveal">
-                                    <strong>Correct Answer:</strong> ${q.answer}
-                                </p>` : ''}
-                                ${explanationHTML}
-                            </div>
-                        </div>
-                    `;
-                    detailedResultsEl.innerHTML += reviewCardHTML;
+                    const header = document.createElement('div');
+                    header.className = 'review-card-header';
+                    
+                    const questionNum = document.createElement('span');
+                    questionNum.className = 'review-question-number';
+                    setTextContent(questionNum, `Question ${i + 1}`);
+                    header.appendChild(questionNum);
+                    
+                    if (isMarked) {
+                        const markedIcon = document.createElement('span');
+                        markedIcon.className = 'review-marked-icon';
+                        setTextContent(markedIcon, '🚩 Marked');
+                        header.appendChild(markedIcon);
+                    }
+                    
+                    const status = document.createElement('span');
+                    status.className = `review-status ${statusClass}`;
+                    setTextContent(status, `${statusIcon} ${statusText}`);
+                    header.appendChild(status);
+                    
+                    reviewCard.appendChild(header);
+                    
+                    const body = document.createElement('div');
+                    body.className = 'review-card-body';
+                    
+                    const questionText = document.createElement('p');
+                    questionText.className = 'review-question-text';
+                    setTextContent(questionText, q.question);
+                    body.appendChild(questionText);
+                    
+                    const userAnswerP = document.createElement('p');
+                    userAnswerP.className = `review-answer user-answer ${isCorrect ? 'correct-answer' : 'incorrect-answer'}`;
+                    const userAnswerStrong = document.createElement('strong');
+                    setTextContent(userAnswerStrong, 'Your Answer: ');
+                    userAnswerP.appendChild(userAnswerStrong);
+                    userAnswerP.appendChild(document.createTextNode(userAnswer));
+                    body.appendChild(userAnswerP);
+                    
+                    if (!isCorrect) {
+                        const correctAnswerP = document.createElement('p');
+                        correctAnswerP.className = 'review-answer correct-answer-reveal';
+                        const correctAnswerStrong = document.createElement('strong');
+                        setTextContent(correctAnswerStrong, 'Correct Answer: ');
+                        correctAnswerP.appendChild(correctAnswerStrong);
+                        correctAnswerP.appendChild(document.createTextNode(q.answer || 'N/A'));
+                        body.appendChild(correctAnswerP);
+                    }
+                    
+                    // Add explanation if available and explanations are enabled
+                    if (explanationsEnabled && q.explanation) {
+                        const explanationDiv = document.createElement('div');
+                        explanationDiv.className = 'question-explanation';
+                        const explanationStrong = document.createElement('strong');
+                        setTextContent(explanationStrong, '💡 Explanation: ');
+                        explanationDiv.appendChild(explanationStrong);
+                        explanationDiv.appendChild(document.createTextNode(q.explanation));
+                        body.appendChild(explanationDiv);
+                    }
+                    
+                    reviewCard.appendChild(body);
+                    detailedResultsEl.appendChild(reviewCard);
                 });
 
                 detailedResultsEl.style.display = 'block';
-                reviewBtn.textContent = 'Hide Review';
+                setTextContent(reviewBtn, 'Hide Review');
                 if (markedQuestions.includes(true)) {
                     filterMarkedBtn.style.display = 'inline-flex';
                 }
                 
                 // Add explanation toggle button
                 if (!document.getElementById('explanation-toggle')) {
-                    const explanationToggle = document.createElement('button');
-                    explanationToggle.id = 'explanation-toggle';
-                    explanationToggle.className = 'nav-btn';
-                    explanationToggle.textContent = explanationsEnabled ? 'Hide Explanations' : 'Show Explanations';
-                    explanationToggle.addEventListener('click', () => {
-                        explanationsEnabled = !explanationsEnabled;
-                        explanationToggle.textContent = explanationsEnabled ? 'Hide Explanations' : 'Show Explanations';
-                        toggleDetailedResults(); // Refresh the view
-                        toggleDetailedResults(); // Show again with explanations
-                    });
-                    document.querySelector('.results-actions').appendChild(explanationToggle);
+                    const resultsActions = document.querySelector('.results-actions');
+                    if (resultsActions) {
+                        const explanationToggle = document.createElement('button');
+                        explanationToggle.id = 'explanation-toggle';
+                        explanationToggle.className = 'nav-btn';
+                        setTextContent(explanationToggle, explanationsEnabled ? 'Hide Explanations' : 'Show Explanations');
+                        explanationToggle.addEventListener('click', () => {
+                            explanationsEnabled = !explanationsEnabled;
+                            setTextContent(explanationToggle, explanationsEnabled ? 'Hide Explanations' : 'Show Explanations');
+                            toggleDetailedResults(); // Refresh the view
+                            toggleDetailedResults(); // Show again with explanations
+                        });
+                        resultsActions.appendChild(explanationToggle);
+                    }
                 }
             } else {
                 detailedResultsEl.style.display = 'none';
-                reviewBtn.textContent = 'Review Answers';
+                setTextContent(reviewBtn, 'Review Answers');
                 filterMarkedBtn.style.display = 'none';
                 isReviewFiltered = false;
-                filterMarkedBtn.textContent = 'Show Marked Only';
+                setTextContent(filterMarkedBtn, 'Show Marked Only');
                 
                 // Remove explanation toggle
                 const explanationToggle = document.getElementById('explanation-toggle');
@@ -734,66 +976,146 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // --- Event Listeners ---
-        markQuestionBtn.addEventListener('click', () => {
-            markedQuestions[currentQuestionIndex] = !markedQuestions[currentQuestionIndex];
-            loadQuestion(currentQuestionIndex);
-        });
+        if (markQuestionBtn) {
+            markQuestionBtn.addEventListener('click', () => {
+                markedQuestions[currentQuestionIndex] = !markedQuestions[currentQuestionIndex];
+                loadQuestion(currentQuestionIndex);
+            });
+        }
 
-        filterMarkedBtn.addEventListener('click', () => {
-            isReviewFiltered = !isReviewFiltered;
-            const allResultItems = detailedResultsEl.querySelectorAll('.review-card');
-            if (isReviewFiltered) {
-                allResultItems.forEach(item => {
-                    item.style.display = item.classList.contains('marked-review') ? 'block' : 'none';
-                });
-                filterMarkedBtn.textContent = 'Show All';
-            } else {
-                allResultItems.forEach(item => item.style.display = 'block');
-                filterMarkedBtn.textContent = 'Show Marked Only';
-            }
-        });
+        if (filterMarkedBtn) {
+            filterMarkedBtn.addEventListener('click', () => {
+                isReviewFiltered = !isReviewFiltered;
+                const allResultItems = detailedResultsEl ? detailedResultsEl.querySelectorAll('.review-card') : [];
+                if (isReviewFiltered) {
+                    allResultItems.forEach(item => {
+                        item.style.display = item.classList.contains('marked-review') ? 'block' : 'none';
+                    });
+                    setTextContent(filterMarkedBtn, 'Show All');
+                } else {
+                    allResultItems.forEach(item => item.style.display = 'block');
+                    setTextContent(filterMarkedBtn, 'Show Marked Only');
+                }
+            });
+        }
 
-        startSegment1Btn.addEventListener('click', () => startQuizForSegment(1));
-        startSegment2Btn.addEventListener('click', () => startQuizForSegment(2));
-        nextBtn.addEventListener('click', () => { if (currentQuestionIndex < currentQuizQuestions.length - 1) { currentQuestionIndex++; loadQuestion(currentQuestionIndex); } });
-        prevBtn.addEventListener('click', () => { if (currentQuestionIndex > 0) { currentQuestionIndex--; loadQuestion(currentQuestionIndex); } });
-        submitBtn.addEventListener('click', submitQuiz);
-        restartBtn.addEventListener('click', () => showScreen(segmentSelectionEl));
-        reviewBtn.addEventListener('click', toggleDetailedResults);
+        if (startSegment1Btn) {
+            startSegment1Btn.addEventListener('click', () => startQuizForSegment(1));
+        }
+        if (startSegment2Btn) {
+            startSegment2Btn.addEventListener('click', () => startQuizForSegment(2));
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentQuestionIndex < currentQuizQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    loadQuestion(currentQuestionIndex);
+                }
+            });
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    loadQuestion(currentQuestionIndex);
+                }
+            });
+        }
+        if (submitBtn) {
+            submitBtn.addEventListener('click', submitQuiz);
+        }
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                showScreen(segmentSelectionEl);
+            });
+        }
+        if (reviewBtn) {
+            reviewBtn.addEventListener('click', toggleDetailedResults);
+        }
 
         // --- Initial Page Load Logic ---
         const params = new URLSearchParams(window.location.search);
         const userName = params.get('name');
         const courseCode = params.get('course');
-        if (!userName || !courseCode) { window.location.href = 'home.html'; return; }
-        document.getElementById('user-info-display').textContent = `User: ${userName} | Course: ${courseCode}`;
         
+        // Validate course code to prevent path traversal
+        const validCourseCodePattern = /^[A-Z0-9]+$/;
+        if (!userName || !courseCode || !validCourseCodePattern.test(courseCode)) {
+            console.error('Invalid course code or missing parameters');
+            window.location.href = 'home.html';
+            return;
+        }
+
+        const userInfoDisplay = safeGetElement('user-info-display');
+        if (userInfoDisplay) {
+            setTextContent(userInfoDisplay, `User: ${sanitizeHTML(userName)} | Course: ${sanitizeHTML(courseCode)}`);
+        }
+        
+        const showCourseNotAvailableError = (message = 'This course has not been uploaded yet. Please try another one.') => {
+            if (!loadingQuizEl) return;
+            const errorContainer = document.createElement('div');
+            errorContainer.className = 'error-message-container';
+            
+            const errorIcon = document.createElement('div');
+            errorIcon.className = 'error-icon';
+            setTextContent(errorIcon, '!');
+            errorContainer.appendChild(errorIcon);
+            
+            const errorTitle = document.createElement('h3');
+            errorTitle.className = 'error-title';
+            setTextContent(errorTitle, 'Course Not Available');
+            errorContainer.appendChild(errorTitle);
+            
+            const errorSubtitle = document.createElement('p');
+            errorSubtitle.className = 'error-subtitle';
+            setTextContent(errorSubtitle, message);
+            errorContainer.appendChild(errorSubtitle);
+            
+            const backLink = document.createElement('a');
+            backLink.href = 'home.html';
+            backLink.className = 'back-link-btn';
+            setTextContent(backLink, '← Go Back to Course Selection');
+            errorContainer.appendChild(backLink);
+            
+            loadingQuizEl.innerHTML = '';
+            loadingQuizEl.appendChild(errorContainer);
+            loadingQuizEl.style.display = 'block';
+        };
+
         const script = document.createElement('script');
         script.src = `courses/${courseCode}.js`;
         
-        const showCourseNotAvailableError = () => {
-            loadingQuizEl.innerHTML = `
-                <div class="error-message-container">
-                    <div class="error-icon">!</div>
-                    <h3 class="error-title">Course Not Available</h3>
-                    <p class="error-subtitle">This course has not been uploaded yet. Please try another one.</p>
-                    <a href="home.html" class="back-link-btn">← Go Back to Course Selection</a>
-                </div>
-            `;
-            loadingQuizEl.style.display = 'block'; 
-        };
-
+        let scriptLoadTimeout;
         script.onload = () => {
-            if (window.quizData?.questions?.length > 0) {
-                fullCourseQuestions = window.quizData.questions;
-                showScreen(segmentSelectionEl);
-            } else {
-                showCourseNotAvailableError();
+            if (scriptLoadTimeout) clearTimeout(scriptLoadTimeout);
+            try {
+                if (window.quizData && window.quizData.questions && Array.isArray(window.quizData.questions) && window.quizData.questions.length > 0) {
+                    fullCourseQuestions = window.quizData.questions;
+                    showScreen(segmentSelectionEl);
+                } else {
+                    showCourseNotAvailableError();
+                }
+            } catch (error) {
+                console.error('Error processing quiz data:', error);
+                showCourseNotAvailableError('Error loading course data. Please try again.');
             }
         };
+        
         script.onerror = () => {
-             showCourseNotAvailableError();
+            if (scriptLoadTimeout) clearTimeout(scriptLoadTimeout);
+            showCourseNotAvailableError();
         };
+        
+        // Set timeout for script loading (10 seconds)
+        scriptLoadTimeout = setTimeout(() => {
+            console.error('Script load timeout');
+            showCourseNotAvailableError('Course loading timed out. Please check your connection and try again.');
+        }, 10000);
+        
         document.head.appendChild(script);
     }
     
@@ -806,14 +1128,16 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const answer = btn.nextElementSibling;
                 const icon = btn.querySelector('.faq-icon');
+                if (!answer || !icon) return;
+                
                 const isActive = btn.classList.toggle('active');
 
                 if (isActive) {
                     answer.style.maxHeight = answer.scrollHeight + 'px';
-                    icon.textContent = '−';
+                    setTextContent(icon, '−');
                 } else {
                     answer.style.maxHeight = '0px';
-                    icon.textContent = '+';
+                    setTextContent(icon, '+');
                 }
             });
         });
