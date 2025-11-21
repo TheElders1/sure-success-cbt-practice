@@ -387,7 +387,7 @@ class MotivationSystem {
 
     // Milestone Checking
     checkMilestones() {
-        const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+        const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
         const currentUser = userData.currentUser ? userData.users[userData.currentUser] : null;
         
         if (!currentUser) return;

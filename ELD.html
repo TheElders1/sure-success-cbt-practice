@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Elders CBT - Admin Dashboard</title>
+    <title>Sure Success CBT - Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,15 +12,15 @@
 
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://the-elders-cbt-practice.netlify.app/" />
-    <meta property="og:title" content="The Elders CBT Practice - Admin Dashboard" />
-    <meta property="og:description" content="Administrative control panel for The Elders CBT platform." />
-    <meta property="og:image" content="https://the-elders-cbt-practice.netlify.app/ELD.png" />
+    <meta property="og:url" content="https://sure-success-cbt-practice.netlify.app/" />
+    <meta property="og:title" content="Sure Success CBT Practice - Admin Dashboard" />
+    <meta property="og:description" content="Administrative control panel for Sure Success CBT platform." />
+    <meta property="og:image" content="https://sure-success-cbt-practice.netlify.app/ELD.png" />
 </head>
 <body>
     <header>
         <div class="header-content">
-            <img src="ELD.png" alt="The Elders CBT Practice Logo" id="header-logo">
+            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
             <div>
                 <h1>🔐 Admin Dashboard</h1>
                 <p id="admin-welcome">System Administration & Analytics</p>
@@ -239,7 +239,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>The Elders CBT - Admin Dashboard</p>
+            <p>Sure Success CBT - Admin Dashboard</p>
             <div class="footer-links">
                 <a href="index.html">🏠 Home</a>
                 <a href="contact.html">📞 Contact</a>
@@ -248,7 +248,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-                <p>&copy; 2025 The Elders CBT Practice. All rights reserved.</p>
+                <p>&copy; 2025 Sure Success CBT Practice. All rights reserved.</p>
                 <div class="footer-meta">
                     <span>Made with ❤️ for students</span>
                 </div>
@@ -272,7 +272,7 @@
             }
 
             function loadSystemData() {
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                 const users = Object.values(userData.users || {});
                 
                 updateSystemStats(users);
@@ -418,7 +418,7 @@
 
             function createDepartmentChart() {
                 const ctx = document.getElementById('department-chart').getContext('2d');
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                 const users = Object.values(userData.users || {});
                 
                 const departmentData = {};
@@ -526,7 +526,7 @@
                 // Search functionality
                 document.getElementById('user-search').addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
-                    const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                    const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                     const users = Object.values(userData.users || {});
                     const filteredUsers = users.filter(user => 
                         user.name.toLowerCase().includes(searchTerm) ||
@@ -539,7 +539,7 @@
                 // Department filter
                 document.getElementById('department-filter-admin').addEventListener('change', function() {
                     const department = this.value;
-                    const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                    const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                     const users = Object.values(userData.users || {});
                     const filteredUsers = department === 'all' ? 
                         users : 
@@ -572,20 +572,20 @@
             }
 
             function exportAllData() {
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                 const dataStr = JSON.stringify(userData, null, 2);
                 const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `elders_cbt_backup_${new Date().toISOString().split('T')[0]}.json`;
+                a.download = `suresuccess_cbt_backup_${new Date().toISOString().split('T')[0]}.json`;
                 a.click();
                 window.URL.revokeObjectURL(url);
             }
 
             function clearInactiveUsers() {
                 if (confirm('Are you sure you want to delete all inactive users? This action cannot be undone.')) {
-                    const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                    const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                     const oneMonthAgo = new Date();
                     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
                     
@@ -597,7 +597,7 @@
                         }
                     });
                     
-                    localStorage.setItem('eldersUserData', JSON.stringify(userData));
+                    localStorage.setItem('sureSuccessUserData', JSON.stringify(userData));
                     loadSystemData();
                     alert('Inactive users have been removed.');
                 }
@@ -609,7 +609,7 @@
             }
 
             function generateReport() {
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                 const users = Object.values(userData.users || {});
                 
                 const report = {
@@ -634,7 +634,7 @@
 
             // Global functions
             window.viewUserDetails = function(userId) {
-                const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                 const user = userData.users[userId];
                 
                 if (!user) return;
@@ -674,9 +674,9 @@
 
             window.deleteUser = function(userId) {
                 if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-                    const userData = JSON.parse(localStorage.getItem('eldersUserData') || '{}');
+                    const userData = JSON.parse(localStorage.getItem('sureSuccessUserData') || '{}');
                     delete userData.users[userId];
-                    localStorage.setItem('eldersUserData', JSON.stringify(userData));
+                    localStorage.setItem('sureSuccessUserData', JSON.stringify(userData));
                     loadSystemData();
                     alert('User deleted successfully.');
                 }

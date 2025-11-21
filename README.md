@@ -1,2 +1,2 @@
-# the-elders-cbt-practice
+# sure-success-cbt-practice
 stop playing
