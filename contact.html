@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Open Graph / Facebook / LinkedIn / Link Preview Meta Tags -->
     <meta property="og:type" content="website" />
@@ -24,50 +24,91 @@
     <meta property="twitter:image" content="https://sure-success-cbt-practice.netlify.app/ELD.png" />
 </head>
 <body>
-
-    <header>
-        <div class="header-content">
-            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
-            <div>
-                <h1>Contact & Support</h1>
-                <p>Get in touch or support the project</p>
-            </div>
-            <button id="theme-toggle" class="nav-btn">🌙</button>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🎓</div>
+            <div class="sidebar-title">Sure Success</div>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-label">Login</span>
+            </a>
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Analytics</span>
+            </a>
+            <a href="about.html" class="nav-item">
+                <span class="nav-icon">ℹ️</span>
+                <span class="nav-label">About</span>
+            </a>
+            <a href="help.html" class="nav-item">
+                <span class="nav-icon">❓</span>
+                <span class="nav-label">Help</span>
+            </a>
+            <a href="contact.html" class="nav-item active">
+                <span class="nav-icon">📞</span>
+                <span class="nav-label">Contact</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="theme-toggle-sidebar">
+                <span>🌙</span>
+                <span>Dark Mode</span>
+            </button>
+        </div>
+    </aside>
 
-    <main id="contact-page">
-        <div class="page-header">
-            <h2>We're Here to Help</h2>
-            <p>Choose a contact method or consider supporting our mission.</p>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <h1 class="top-bar-title">Contact & Support</h1>
+            <div class="top-bar-actions"></div>
         </div>
 
-        <div class="contact-grid">
-            <div class="advanced-card">
-                <div class="card-icon">💳</div>
-                <h3>Financial Support</h3>
-                <p class="card-description">Your support helps us maintain and improve this platform for everyone.</p>
-                <div class="card-details">
-                    <p><strong>Bank:</strong> Moniepoint</p>
-                    <p><strong>Name:</strong> Samuel Daniel Bassey</p>
-                    <div class="copy-container">
-                        <p><strong>Account:</strong> 5554267465</p>
-                        <button class="copy-btn" onclick="copyToClipboard('5554267465', this)">Copy</button>
+        <div class="content-area">
+            <main id="contact-page">
+                <div class="glass-card text-center animate-fade-in mb-4">
+                    <h2>We're Here to Help</h2>
+                    <p style="color: var(--text-secondary); margin-top: 8px;">Choose a contact method or consider supporting our mission.</p>
+                </div>
+
+                <div class="grid grid-auto">
+                    <div class="glass-card animate-fade-in">
+                        <div class="stat-icon" style="margin-bottom: 16px;">💳</div>
+                        <h3 style="margin-bottom: 8px;">Financial Support</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Your support helps us maintain and improve this platform for everyone.</p>
+                        <div style="text-align: left; background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-md); margin-top: 16px;">
+                            <p style="margin-bottom: 8px;"><strong>Bank:</strong> Moniepoint</p>
+                            <p style="margin-bottom: 8px;"><strong>Name:</strong> Samuel Daniel Bassey</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <p style="margin: 0;"><strong>Account:</strong> 5554267465</p>
+                                <button class="btn btn-sm btn-outline" onclick="copyToClipboard('5554267465', this)">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card animate-fade-in">
+                        <div class="stat-icon" style="margin-bottom: 16px;">💬</div>
+                        <h3 style="margin-bottom: 8px;">General Inquiries</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">For questions, feedback, or issues, please reach out via WhatsApp or phone.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+                            <a href="https://wa.me/2348162638106" class="btn" style="background: #25D366; color: white;">Message on WhatsApp</a>
+                            <a href="tel:+2347045900244" class="btn" style="background: #34B7F1; color: white;">Call Us</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="advanced-card">
-                <div class="card-icon">💬</div>
-                <h3>General Inquiries</h3>
-                <p class="card-description">For questions, feedback, or issues, please reach out via WhatsApp or phone.</p>
-                <div class="card-actions">
-                    <a href="https://wa.me/2348162638106" class="action-btn whatsapp-btn">Message on WhatsApp</a>
-                    <a href="tel:+2347045900244" class="action-btn phone-btn">Call Us</a>
-                </div>
-            </div>
+            </main>
         </div>
-    </main>
+    </div>
 
     <footer>
         <div class="footer-content">
@@ -88,14 +129,28 @@
 
     <script src="main.js" defer></script>
     <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileToggle && sidebar) {
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+            }
+        });
+
         function copyToClipboard(text, btn) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = btn.textContent;
                 btn.textContent = 'Copied!';
-                btn.classList.add('copied');
+                btn.style.background = 'var(--success)';
+                btn.style.color = 'white';
                 setTimeout(() => {
                     btn.textContent = originalText;
-                    btn.classList.remove('copied');
+                    btn.style.background = '';
+                    btn.style.color = '';
                 }, 2000);
             }).catch(err => console.error('Failed to copy: ', err));
         }

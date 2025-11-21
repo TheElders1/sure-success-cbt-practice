@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Open Graph / Facebook / LinkedIn / Link Preview Meta Tags -->
     <meta property="og:type" content="website" />
@@ -24,50 +24,91 @@
     <meta property="twitter:image" content="https://sure-success-cbt-practice.netlify.app/ELD.png" />
 </head>
 <body>
-
-    <header>
-        <div class="header-content">
-            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
-            <div>
-                <h1>About The Project</h1>
-                <p>Our Mission and Key Features</p>
-            </div>
-            <button id="theme-toggle" class="nav-btn">🌙</button>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🎓</div>
+            <div class="sidebar-title">Sure Success</div>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-label">Login</span>
+            </a>
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Analytics</span>
+            </a>
+            <a href="about.html" class="nav-item active">
+                <span class="nav-icon">ℹ️</span>
+                <span class="nav-label">About</span>
+            </a>
+            <a href="help.html" class="nav-item">
+                <span class="nav-icon">❓</span>
+                <span class="nav-label">Help</span>
+            </a>
+            <a href="contact.html" class="nav-item">
+                <span class="nav-icon">📞</span>
+                <span class="nav-label">Contact</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="theme-toggle-sidebar">
+                <span>🌙</span>
+                <span>Dark Mode</span>
+            </button>
+        </div>
+    </aside>
 
-    <main id="about-page">
-        <section class="page-section text-center">
-            <h2>Our Mission</h2>
-            <p class="section-subtitle">To provide students with a powerful, accessible, and user-friendly platform to master their CBT coursework through dedicated practice.</p>
-        </section>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
 
-        <section class="page-section">
-            <h2 class="text-center">Key Features</h2>
-            <div class="features-grid">
-                <div class="advanced-card feature-card">
-                    <div class="card-icon">📚</div>
-                    <h3>Comprehensive Question Bank</h3>
-                    <p>Access a wide range of questions across multiple departments, from fundamentals to advanced topics.</p>
-                </div>
-                <div class="advanced-card feature-card">
-                    <div class="card-icon">⏱️</div>
-                    <h3>Realistic Exam Simulation</h3>
-                    <p>Practice under timed conditions to build speed and confidence for your actual assessments.</p>
-                </div>
-                <div class="advanced-card feature-card">
-                    <div class="card-icon">📊</div>
-                    <h3>Detailed Performance Review</h3>
-                    <p>Instantly see your score and review your answers to understand your strengths and weaknesses.</p>
-                </div>
-            </div>
-        </section>
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <h1 class="top-bar-title">About The Project</h1>
+            <div class="top-bar-actions"></div>
+        </div>
 
-         <section class="page-section text-center">
-            <h2>Why "Sure Success"?</h2>
-            <p class="section-subtitle">The name is inspired by the idea of learning from the wisdom of those who have paved the way. We aim to be a reliable source of knowledge, guiding you toward success in your academic journey.</p>
-        </section>
-    </main>
+        <div class="content-area">
+            <main id="about-page">
+                <section class="glass-card text-center animate-fade-in mb-4">
+                    <h2>Our Mission</h2>
+                    <p style="color: var(--text-secondary); margin-top: 16px; font-size: 1.1rem;">To provide students with a powerful, accessible, and user-friendly platform to master their CBT coursework through dedicated practice.</p>
+                </section>
+
+                <section class="glass-card animate-fade-in mb-4">
+                    <h2 class="text-center mb-4">Key Features</h2>
+                    <div class="grid grid-auto">
+                        <div class="glass-card">
+                            <div class="stat-icon" style="margin-bottom: 16px;">📚</div>
+                            <h3 style="margin-bottom: 8px;">Comprehensive Question Bank</h3>
+                            <p style="color: var(--text-secondary);">Access a wide range of questions across multiple departments, from fundamentals to advanced topics.</p>
+                        </div>
+                        <div class="glass-card">
+                            <div class="stat-icon" style="margin-bottom: 16px;">⏱️</div>
+                            <h3 style="margin-bottom: 8px;">Realistic Exam Simulation</h3>
+                            <p style="color: var(--text-secondary);">Practice under timed conditions to build speed and confidence for your actual assessments.</p>
+                        </div>
+                        <div class="glass-card">
+                            <div class="stat-icon" style="margin-bottom: 16px;">📊</div>
+                            <h3 style="margin-bottom: 8px;">Detailed Performance Review</h3>
+                            <p style="color: var(--text-secondary);">Instantly see your score and review your answers to understand your strengths and weaknesses.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-card text-center animate-fade-in">
+                    <h2>Why "Sure Success"?</h2>
+                    <p style="color: var(--text-secondary); margin-top: 16px; font-size: 1.1rem;">The name is inspired by the idea of learning from the wisdom of those who have paved the way. We aim to be a reliable source of knowledge, guiding you toward success in your academic journey.</p>
+                </section>
+            </main>
+        </div>
+    </div>
 
     <footer>
         <div class="footer-content">
@@ -87,5 +128,18 @@
     </footer>
     
     <script src="main.js" defer></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileToggle && sidebar) {
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

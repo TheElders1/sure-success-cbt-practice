@@ -222,46 +222,101 @@ document.addEventListener('DOMContentLoaded', () => {
                 return Math.max(0, Math.min(100, percentage)); // Clamp between 0-100
             });
 
-            new Chart(chartCanvas.getContext('2d'), {
+            // Create gradient for chart
+            const ctx = chartCanvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(107, 70, 193, 0.3)');
+            gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.2)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+
+            new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
                         label: 'Score (%)',
                         data: scores,
-                        borderColor: '#510F64',
-                        backgroundColor: 'rgba(81, 15, 100, 0.1)',
-                        borderWidth: 3,
+                        borderColor: '#6B46C1',
+                        backgroundColor: gradient,
+                        borderWidth: 4,
                         fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#510F64',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
+                        tension: 0.5,
+                        pointBackgroundColor: '#6B46C1',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 3,
+                        pointRadius: 8,
+                        pointHoverRadius: 10,
+                        pointHoverBackgroundColor: '#8B5CF6',
+                        pointHoverBorderColor: '#FFFFFF',
+                        pointHoverBorderWidth: 3
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                            padding: 12,
+                            titleFont: {
+                                family: 'Poppins',
+                                size: 14,
+                                weight: '600'
+                            },
+                            bodyFont: {
+                                family: 'Poppins',
+                                size: 13
+                            },
+                            borderColor: '#6B46C1',
+                            borderWidth: 2,
+                            cornerRadius: 8,
+                            displayColors: false
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             max: 100,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.5)',
+                                lineWidth: 1
+                            },
                             ticks: {
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                color: '#64748B',
                                 callback: function(value) {
                                     return value + '%';
                                 }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                color: '#64748B'
                             }
                         }
                     },
                     elements: {
                         point: {
-                            hoverRadius: 8
+                            hoverRadius: 10
                         }
                     }
                 }

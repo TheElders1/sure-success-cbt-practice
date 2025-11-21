@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Open Graph / Link Preview Meta Tags -->
     <meta property="og:type" content="website" />
@@ -18,25 +18,65 @@
     <meta property="twitter:card" content="summary_large_image" />
 </head>
 <body>
-
-    <header>
-        <div class="header-content">
-            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
-            <div>
-                <h1>Help & FAQ</h1>
-                <p>Frequently Asked Questions</p>
-            </div>
-            <button id="theme-toggle" class="nav-btn">🌙</button>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🎓</div>
+            <div class="sidebar-title">Sure Success</div>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-label">Login</span>
+            </a>
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Analytics</span>
+            </a>
+            <a href="about.html" class="nav-item">
+                <span class="nav-icon">ℹ️</span>
+                <span class="nav-label">About</span>
+            </a>
+            <a href="help.html" class="nav-item active">
+                <span class="nav-icon">❓</span>
+                <span class="nav-label">Help</span>
+            </a>
+            <a href="contact.html" class="nav-item">
+                <span class="nav-icon">📞</span>
+                <span class="nav-label">Contact</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="theme-toggle-sidebar">
+                <span>🌙</span>
+                <span>Dark Mode</span>
+            </button>
+        </div>
+    </aside>
 
-    <main id="help-page">
-        <div class="page-header">
-            <h2>How Can We Help?</h2>
-            <p>Find answers to common questions below.</p>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <h1 class="top-bar-title">Help & FAQ</h1>
+            <div class="top-bar-actions"></div>
         </div>
 
-        <div class="faq-container">
+        <div class="content-area">
+            <main id="help-page">
+                <div class="glass-card text-center animate-fade-in mb-4">
+                    <h2>How Can We Help?</h2>
+                    <p style="color: var(--text-secondary); margin-top: 8px;">Find answers to common questions below.</p>
+                </div>
+
+                <div class="glass-card animate-fade-in">
+                    <div class="faq-container">
             <div class="faq-item">
                 <button class="faq-question">
                     <span>How do I start a quiz?</span>
@@ -115,9 +155,11 @@
                 <div class="faq-answer">
                     <p>Please double-check that you have selected the correct department and course name. If it still doesn't load, the quiz data for that specific course might not be available yet. Please <a href="contact.html">contact us</a> to report the issue.</p>
                 </div>
-            </div>
+                    </div>
+                </div>
+            </main>
         </div>
-    </main>
+    </div>
 
     <footer>
         <div class="footer-content">
@@ -136,7 +178,19 @@
             </div>
     </footer>
 
-    <!-- This single script now controls the theme and the FAQ accordion -->
     <script src="main.js" defer></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileToggle && sidebar) {
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

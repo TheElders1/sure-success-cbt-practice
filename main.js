@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. UNIVERSAL LOGIC (Runs on every page)
     // =========================================================================
     
-    // --- Theme Toggler ---
+    // --- Theme Toggler (Updated for sidebar) ---
     const themeToggleBtn = safeGetElement('theme-toggle');
     if (themeToggleBtn) {
         const applyTheme = () => {
@@ -336,10 +336,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentTheme = localStorage.getItem('theme');
                 if (currentTheme === 'dark') {
                     document.body.classList.add('dark-mode');
-                    themeToggleBtn.textContent = '☀️';
+                    const toggleText = themeToggleBtn.querySelector('span:last-child');
+                    if (toggleText) {
+                        toggleText.textContent = 'Light Mode';
+                    }
+                    // Update icon if it's the first span
+                    const iconSpan = themeToggleBtn.querySelector('span:first-child');
+                    if (iconSpan) {
+                        iconSpan.textContent = '☀️';
+                    }
                 } else {
                     document.body.classList.remove('dark-mode');
-                    themeToggleBtn.textContent = '🌙';
+                    const toggleText = themeToggleBtn.querySelector('span:last-child');
+                    if (toggleText) {
+                        toggleText.textContent = 'Dark Mode';
+                    }
+                    const iconSpan = themeToggleBtn.querySelector('span:first-child');
+                    if (iconSpan) {
+                        iconSpan.textContent = '🌙';
+                    }
                 }
             } catch (error) {
                 console.error('Error applying theme:', error);
@@ -355,6 +370,58 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         applyTheme();
+    }
+
+    // --- Mobile Menu Toggle ---
+    const mobileMenuToggle = safeGetElement('mobile-menu-toggle');
+    const sidebar = safeGetElement('sidebar');
+    if (mobileMenuToggle && sidebar) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
+
+    // --- FAQ Accordion (if not already handled) ---
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    if (faqQuestions.length > 0) {
+        // Check if FAQ functionality is already set up
+        let faqHandled = false;
+        faqQuestions.forEach(q => {
+            if (q.hasAttribute('data-faq-handled')) {
+                faqHandled = true;
+            }
+        });
+        
+        if (!faqHandled) {
+            faqQuestions.forEach(question => {
+                question.setAttribute('data-faq-handled', 'true');
+                question.addEventListener('click', () => {
+                    const faqItem = question.closest('.faq-item');
+                    const answer = faqItem.querySelector('.faq-answer');
+                    const isActive = question.classList.contains('active');
+                    
+                    // Close all other FAQs
+                    faqQuestions.forEach(q => {
+                        if (q !== question) {
+                            q.classList.remove('active');
+                            const otherAnswer = q.closest('.faq-item').querySelector('.faq-answer');
+                            if (otherAnswer) {
+                                otherAnswer.style.maxHeight = '0';
+                            }
+                        }
+                    });
+                    
+                    // Toggle current FAQ
+                    if (isActive) {
+                        question.classList.remove('active');
+                        answer.style.maxHeight = '0';
+                    } else {
+                        question.classList.add('active');
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                    }
+                });
+            });
+        }
     }
 
     // --- Secure Notification Helper ---
@@ -422,6 +489,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 feedbackEl.className = `form-feedback ${type}`;
             }
         };
+
+        // Update form input styling for floating labels
+        nameInput.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        nameInput.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
 
         const validateForm = () => {
             let isValid = true;
@@ -656,38 +733,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             question.options.forEach((optionText) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
+                const optionItem = document.createElement('div');
+                optionItem.className = 'option-item';
                 
-                // Create radio input safely
-                const radio = document.createElement('input');
-                radio.type = 'radio';
-                radio.name = 'q_options';
-                radio.value = sanitizeHTML(optionText);
+                // Create radio indicator
+                const radio = document.createElement('div');
+                radio.className = 'option-radio';
                 
-                const label = document.createElement('label');
+                const label = document.createElement('div');
+                label.className = 'option-label';
                 setTextContent(label, optionText);
                 
-                optionDiv.appendChild(radio);
-                optionDiv.appendChild(label);
+                optionItem.appendChild(radio);
+                optionItem.appendChild(label);
                 
                 if (userAnswers[index] === optionText) {
-                    radio.checked = true;
+                    optionItem.classList.add('selected');
                 }
-                optionDiv.addEventListener('click', () => {
-                    radio.checked = true;
+                
+                optionItem.addEventListener('click', () => {
+                    // Remove selected from all options
+                    optionsContainerEl.querySelectorAll('.option-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    // Add selected to clicked option
+                    optionItem.classList.add('selected');
                     userAnswers[index] = optionText;
                     updateQuizProgress();
                 });
-                optionsContainerEl.appendChild(optionDiv);
+                optionsContainerEl.appendChild(optionItem);
             });
             updateNavigationButtons();
 
             if (markedQuestions[index]) {
                 markQuestionBtn.classList.add('active');
+                markQuestionBtn.style.background = 'var(--accent-amber)';
+                markQuestionBtn.style.color = 'white';
                 setTextContent(markQuestionBtn, '🚩 Marked');
             } else {
                 markQuestionBtn.classList.remove('active');
+                markQuestionBtn.style.background = '';
+                markQuestionBtn.style.color = '';
                 setTextContent(markQuestionBtn, '🚩 Mark');
             }
         };

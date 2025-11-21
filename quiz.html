@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website" />
@@ -18,83 +18,129 @@
     <meta property="twitter:card" content="summary_large_image" />
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
-            <div>
-                <h1 id="quiz-header-title">Sure Success CBT - Quiz</h1>
-                <p id="user-info-display">Loading...</p>
-            </div>
-            <button id="theme-toggle" class="nav-btn">🌙</button>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🎓</div>
+            <div class="sidebar-title">Sure Success</div>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-label">Login</span>
+            </a>
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Analytics</span>
+            </a>
+            <a href="about.html" class="nav-item">
+                <span class="nav-icon">ℹ️</span>
+                <span class="nav-label">About</span>
+            </a>
+            <a href="help.html" class="nav-item">
+                <span class="nav-icon">❓</span>
+                <span class="nav-label">Help</span>
+            </a>
+            <a href="contact.html" class="nav-item">
+                <span class="nav-icon">📞</span>
+                <span class="nav-label">Contact</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="theme-toggle-sidebar">
+                <span>🌙</span>
+                <span>Dark Mode</span>
+            </button>
+        </div>
+    </aside>
 
-    <main id="quiz-host">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <h1 class="top-bar-title" id="user-info-display">Loading...</h1>
+            <div class="top-bar-actions"></div>
+        </div>
+
+        <div class="content-area">
+            <main id="quiz-host">
         
-        <div id="loading-quiz" style="text-align: center; padding: 50px;">
-            <div class="loading-animation">
-                <div class="loading-spinner"></div>
-                <h3>Preparing Your Course</h3>
-                <p>Setting up questions and analytics...</p>
-            </div>
-        </div>
-
-        <!-- Segment Selection Screen with updated button text -->
-        <div id="segment-selection-quiz" style="display: none;">
-            <div class="segment-header">
-                <h2>Choose a Segment to Begin</h2>
-                <p class="segment-subtitle">Each quiz contains 50 randomly selected questions from its segment pool.</p>
-            </div>
-            <div class="segment-actions">
-                 <button id="start-segment-1-btn" class="segment-btn">Practice Segment 1</button>
-                 <button id="start-segment-2-btn" class="segment-btn">Practice Segment 2</button>
-            </div>
-            <div class="back-link-wrapper">
-                 <a href="home.html" class="back-link-btn">← Choose Another Course</a>
-            </div>
-        </div>
-
-        <div id="quiz-container" style="display: none;">
-            <!-- Quiz interface remains the same -->
-            <div class="quiz-progress-container">
-                <div id="progress-percentage">0%</div>
-                <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
-            </div>
-            <div id="quiz-info">
-                <span id="question-header">Question <span id="question-number">1</span> of <span id="total-questions">50</span></span>
-                <span id="timer">Time Left: 25:00</span>
-            </div>
-            <div id="question-area"><p id="question-text">Loading question...</p></div>
-            <div id="options-container"></div>
-            <div id="navigation-area">
-                <button id="prev-btn" class="quiz-nav-btn">← Previous</button>
-                <div class="nav-center-group">
-                    <div class="question-counter"><span id="answered-count">0</span> / <span id="total-count">50</span> answered</div>
-                    <button id="mark-question-btn" class="nav-btn mark-btn">🚩 Mark</button>
+                <div id="loading-quiz" class="glass-card text-center" style="padding: 60px;">
+                    <div class="loading-animation">
+                        <div class="loading-spinner"></div>
+                        <h3 style="margin-top: 24px;">Preparing Your Course</h3>
+                        <p style="color: var(--text-secondary);">Setting up questions and analytics...</p>
+                    </div>
                 </div>
-                <button id="next-btn" class="quiz-nav-btn">Next →</button>
-                <button id="submit-btn" class="submit-btn" style="display: none;">Submit Quiz</button>
-            </div>
-        </div>
 
-        <section id="results-container" style="display: none;">
-            <!-- Results screen remains the same -->
-            <div class="results-header"><h2>Quiz Complete!</h2><p class="results-subtitle">Great job!</p></div>
-            <div class="score-display">
-                <div class="score-circle"><span id="score-percentage">0%</span></div>
-                <div>
-                    <p id="score-text">Your Score: -- / --</p>
-                    <p id="feedback-text">Loading feedback...</p>
+                <!-- Segment Selection Screen -->
+                <div id="segment-selection-quiz" class="glass-card animate-fade-in" style="display: none;">
+                    <div class="text-center mb-4">
+                        <h2>Choose a Segment to Begin</h2>
+                        <p style="color: var(--text-secondary); margin-top: 8px;">Each quiz contains 50 randomly selected questions from its segment pool.</p>
+                    </div>
+                    <div class="grid grid-2" style="gap: 16px; margin-bottom: 24px;">
+                        <button id="start-segment-1-btn" class="btn btn-primary btn-lg">Practice Segment 1</button>
+                        <button id="start-segment-2-btn" class="btn btn-primary btn-lg">Practice Segment 2</button>
+                    </div>
+                    <div class="text-center">
+                        <a href="home.html" class="btn btn-outline">← Choose Another Course</a>
+                    </div>
                 </div>
-            </div>
-            <div class="results-actions">
-                <button id="restart-btn" class="segment-btn">Practice Another Segment</button>
-                <button id="review-btn" class="nav-btn">Review Answers</button>
-                <button id="filter-marked-btn" class="nav-btn" style="display: none;">Show Marked Only</button>
-            </div>
-            <div id="detailed-results" style="display: none;"></div>
-        </section>
-    </main>
+
+                <div id="quiz-container" class="quiz-container animate-fade-in" style="display: none;">
+                    <div class="quiz-progress-bar mb-4">
+                        <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid var(--border-light);">
+                        <span id="question-header" style="font-weight: 600; color: var(--text-primary);">Question <span id="question-number">1</span> of <span id="total-questions">50</span></span>
+                        <span id="timer" style="font-weight: 700; color: var(--primary-indigo); font-size: 1.1rem;">Time Left: 25:00</span>
+                    </div>
+                    <div class="question-card mb-4">
+                        <p id="question-text" style="font-size: 1.25rem; font-weight: 600; line-height: 1.6;">Loading question...</p>
+                    </div>
+                    <div id="options-container" style="margin-bottom: 32px;"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <button id="prev-btn" class="btn btn-outline">← Previous</button>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <div style="color: var(--text-secondary); font-weight: 500;"><span id="answered-count">0</span> / <span id="total-count">50</span> answered</div>
+                            <button id="mark-question-btn" class="btn btn-ghost btn-sm">🚩 Mark</button>
+                        </div>
+                        <button id="next-btn" class="btn btn-primary">Next →</button>
+                        <button id="submit-btn" class="btn btn-secondary" style="display: none;">Submit Quiz</button>
+                    </div>
+                </div>
+
+                <section id="results-container" class="results-container animate-scale-in" style="display: none;">
+                    <div class="text-center mb-4">
+                        <h2>Quiz Complete!</h2>
+                        <p style="color: var(--text-secondary); margin-top: 8px;">Great job!</p>
+                    </div>
+                    <div class="score-display-large">
+                        <div class="score-circle-large">
+                            <span id="score-percentage">0%</span>
+                        </div>
+                        <div>
+                            <p id="score-text" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Your Score: -- / --</p>
+                            <p id="feedback-text" style="color: var(--text-secondary); font-size: 1.1rem;">Loading feedback...</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-auto" style="margin-top: 32px;">
+                        <button id="restart-btn" class="btn btn-primary">Practice Another Segment</button>
+                        <button id="review-btn" class="btn btn-outline">Review Answers</button>
+                        <button id="filter-marked-btn" class="btn btn-ghost" style="display: none;">Show Marked Only</button>
+                    </div>
+                    <div id="detailed-results" style="display: none; margin-top: 32px;"></div>
+                </section>
+            </main>
+        </div>
+    </div>
     
     <footer>
         <div class="footer-content">
@@ -114,5 +160,18 @@
     </footer>
     
     <script src="main.js" defer></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileToggle && sidebar) {
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
