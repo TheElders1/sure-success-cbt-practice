@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Open Graph Meta Tags -->
@@ -18,67 +18,22 @@
     <meta property="og:image" content="https://sure-success-cbt-practice.netlify.app/ELD.png" />
 </head>
 <body>
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">🎓</div>
-            <div class="sidebar-title">Sure Success</div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">🔐</span>
-                <span class="nav-label">Login</span>
-            </a>
-            <a href="home.html" class="nav-item">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Home</span>
-            </a>
-            <a href="dashboard.html" class="nav-item active">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Analytics</span>
-            </a>
-            <a href="about.html" class="nav-item">
-                <span class="nav-icon">ℹ️</span>
-                <span class="nav-label">About</span>
-            </a>
-            <a href="help.html" class="nav-item">
-                <span class="nav-icon">❓</span>
-                <span class="nav-label">Help</span>
-            </a>
-            <a href="contact.html" class="nav-item">
-                <span class="nav-icon">📞</span>
-                <span class="nav-label">Contact</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="theme-toggle" class="theme-toggle-sidebar">
-                <span>🌙</span>
-                <span>Dark Mode</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
-
-    <!-- Main Content Wrapper -->
-    <div class="main-wrapper">
-        <div class="top-bar">
-            <h1 class="top-bar-title" id="user-welcome">Loading...</h1>
-            <div class="top-bar-actions">
-                <!-- Search functionality will be added here -->
-                <div style="position: relative;">
-                    <input type="text" id="search-input" placeholder="Search..." style="padding: 10px 16px; border: 2px solid var(--border-light); border-radius: var(--radius-full); background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; width: 250px; font-size: 0.9rem;">
-                </div>
+    <header>
+        <div class="header-content">
+            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
+            <div>
+                <h1>Performance Dashboard</h1>
+                <p id="user-welcome">Loading...</p>
             </div>
+            <button id="theme-toggle" class="nav-btn">🌙</button>
         </div>
+    </header>
 
-        <div class="content-area">
-            <main id="dashboard-page">
-                <!-- User Stats Overview -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>📊 Your Stats</h2>
-                    <div class="grid grid-auto">
+    <main id="dashboard-page">
+        <!-- User Stats Overview -->
+        <section class="dashboard-section">
+            <h2>📊 Your Stats</h2>
+            <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">🎯</div>
                     <div class="stat-content">
@@ -124,53 +79,51 @@
             </div>
         </section>
 
-                <!-- Performance Chart -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>📈 Performance Trend</h2>
-                    <div class="chart-container">
-                        <canvas id="performance-chart"></canvas>
-                    </div>
-                </section>
+        <!-- Performance Chart -->
+        <section class="dashboard-section">
+            <h2>📈 Performance Trend</h2>
+            <div class="chart-container">
+                <canvas id="performance-chart"></canvas>
+            </div>
+        </section>
 
-                <!-- Achievements -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>🏆 Achievements</h2>
-                    <div id="achievements-container" class="grid grid-auto">
-                        <!-- Achievements will be populated by JavaScript -->
-                    </div>
-                </section>
+        <!-- Achievements -->
+        <section class="dashboard-section">
+            <h2>🏆 Achievements</h2>
+            <div id="achievements-container" class="achievements-grid">
+                <!-- Achievements will be populated by JavaScript -->
+            </div>
+        </section>
 
-                <!-- Weak Areas -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>🎯 Areas for Improvement</h2>
-                    <div id="weak-areas-container">
-                        <!-- Weak areas will be populated by JavaScript -->
-                    </div>
-                </section>
+        <!-- Weak Areas -->
+        <section class="dashboard-section">
+            <h2>🎯 Areas for Improvement</h2>
+            <div id="weak-areas-container">
+                <!-- Weak areas will be populated by JavaScript -->
+            </div>
+        </section>
 
-                <!-- Course Progress -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>📚 Course Progress</h2>
-                    <div id="course-progress-container">
-                        <!-- Course progress will be populated by JavaScript -->
-                    </div>
-                </section>
+        <!-- Course Progress -->
+        <section class="dashboard-section">
+            <h2>📚 Course Progress</h2>
+            <div id="course-progress-container">
+                <!-- Course progress will be populated by JavaScript -->
+            </div>
+        </section>
 
-                <!-- Recent Activity -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>📋 Recent Activity</h2>
-                    <div id="recent-activity-container" class="grid" style="grid-template-columns: 1fr;">
-                        <!-- Recent activity will be populated by JavaScript -->
-                    </div>
-                </section>
+        <!-- Recent Activity -->
+        <section class="dashboard-section">
+            <h2>📋 Recent Activity</h2>
+            <div id="recent-activity-container">
+                <!-- Recent activity will be populated by JavaScript -->
+            </div>
+        </section>
 
-                <div class="grid grid-2" style="margin-top: 32px;">
-                    <a href="home.html" class="btn btn-primary btn-lg">🚀 Take Another Quiz</a>
-                    <button id="reset-data-btn" class="btn danger-btn btn-lg">🗑️ Reset All Data</button>
-                </div>
-            </main>
+        <div class="dashboard-actions">
+            <a href="index.html" class="segment-btn">🚀 Take Another Quiz</a>
+            <button id="reset-data-btn" class="nav-btn danger-btn">🗑️ Reset All Data</button>
         </div>
-    </div>
+    </main>
 
     <footer>
         <div class="footer-content">
@@ -192,18 +145,5 @@
 
     <script src="main.js" defer></script>
     <script src="dashboard.js" defer></script>
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileToggle = document.getElementById('mobile-menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (mobileToggle && sidebar) {
-                mobileToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('open');
-                });
-            }
-        });
-    </script>
 </body>
 </html>

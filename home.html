@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Open Graph Meta Tags -->
@@ -21,151 +21,107 @@
     <meta property="og:image" content="https://sure-success-cbt-practice.netlify.app/ELD.png" />
 </head>
 <body>
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">🎓</div>
-            <div class="sidebar-title">Sure Success</div>
+    <header>
+        <div class="header-content">
+            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
+            <div>
+                <h1>Home</h1>
+                <p id="user-welcome">Loading...</p>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="nav-btn">🌙</button>
+                <button id="logout-btn" class="nav-btn danger-btn">🚪 Logout</button>
+            </div>
         </div>
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">🔐</span>
-                <span class="nav-label">Login</span>
-            </a>
-            <a href="home.html" class="nav-item active">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Home</span>
-            </a>
-            <a href="dashboard.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Analytics</span>
-            </a>
-            <a href="about.html" class="nav-item">
-                <span class="nav-icon">ℹ️</span>
-                <span class="nav-label">About</span>
-            </a>
-            <a href="help.html" class="nav-item">
-                <span class="nav-icon">❓</span>
-                <span class="nav-label">Help</span>
-            </a>
-            <a href="contact.html" class="nav-item">
-                <span class="nav-icon">📞</span>
-                <span class="nav-label">Contact</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="theme-toggle" class="theme-toggle-sidebar">
-                <span>🌙</span>
-                <span>Dark Mode</span>
-            </button>
-            <button id="logout-btn" class="btn btn-outline" style="width: 100%; margin-top: 8px;">
-                <span>🚪</span>
-                <span>Logout</span>
-            </button>
-        </div>
-    </aside>
+    </header>
 
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+    <main id="home-dashboard">
+        <!-- Quick Actions Section -->
+        <section class="dashboard-section">
+            <h2>🚀 Quick Actions</h2>
+            <div class="quick-actions-grid">
+                <div class="action-card">
+                    <div class="action-icon">📝</div>
+                    <h3>Take a Quiz</h3>
+                    <p>Select a course and start practicing immediately</p>
+                    <div class="course-selection-inline">
+                        <select id="quick-course-select">
+                            <option value="" disabled selected>-- Select Course --</option>
+                        </select>
+                        <button id="quick-start-btn" class="segment-btn" disabled>Start Quiz</button>
+                    </div>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">📊</div>
+                    <h3>View Full Analytics</h3>
+                    <p>Detailed performance analysis and insights</p>
+                    <button onclick="window.location.href='dashboard.html'" class="segment-btn">View Analytics</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">🎯</div>
+                    <h3>Practice Weak Areas</h3>
+                    <p>Focus on topics that need improvement</p>
+                    <button id="practice-weak-btn" class="segment-btn">Practice Now</button>
+                </div>
+            </div>
+        </section>
 
-    <!-- Main Content Wrapper -->
-    <div class="main-wrapper">
-        <div class="top-bar">
-            <h1 class="top-bar-title" id="user-welcome">Loading...</h1>
-            <div class="top-bar-actions"></div>
-        </div>
-
-        <div class="content-area">
-            <main id="home-dashboard">
-                <!-- Quick Actions Section -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>🚀 Quick Actions</h2>
-                    <div class="grid grid-auto">
-                        <div class="glass-card">
-                            <div class="stat-icon" style="margin-bottom: 16px;">📝</div>
-                            <h3 style="margin-bottom: 8px;">Take a Quiz</h3>
-                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Select a course and start practicing immediately</p>
-                            <div class="form-group">
-                                <div class="form-input-wrapper">
-                                    <select id="quick-course-select" class="form-select">
-                                        <option value="" disabled selected></option>
-                                    </select>
-                                    <label for="quick-course-select" class="form-label">Select Course</label>
-                                </div>
-                            </div>
-                            <button id="quick-start-btn" class="btn btn-primary" style="width: 100%;" disabled>Start Quiz</button>
-                        </div>
-                        <div class="glass-card">
-                            <div class="stat-icon" style="margin-bottom: 16px;">📊</div>
-                            <h3 style="margin-bottom: 8px;">View Full Analytics</h3>
-                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Detailed performance analysis and insights</p>
-                            <button onclick="window.location.href='dashboard.html'" class="btn btn-secondary" style="width: 100%;">View Analytics</button>
-                        </div>
-                        <div class="glass-card">
-                            <div class="stat-icon" style="margin-bottom: 16px;">🎯</div>
-                            <h3 style="margin-bottom: 8px;">Practice Weak Areas</h3>
-                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Focus on topics that need improvement</p>
-                            <button id="practice-weak-btn" class="btn btn-accent" style="width: 100%;">Practice Now</button>
+        <!-- Performance Overview -->
+        <section class="dashboard-section">
+            <h2>📈 Performance Overview</h2>
+            <div class="performance-overview">
+                <div class="stats-summary">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-quizzes">0</div>
+                            <div class="stat-label">Total Quizzes</div>
                         </div>
                     </div>
-                </section>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="average-score">0%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="study-streak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="user-level">1</div>
+                            <div class="stat-label">Level</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performance-chart"></canvas>
+                </div>
+            </div>
+        </section>
 
-                <!-- Performance Overview -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>📈 Performance Overview</h2>
-                    <div class="grid grid-4 mb-4">
-                        <div class="stat-card">
-                            <div class="stat-icon">🎯</div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="total-quizzes">0</div>
-                                <div class="stat-label">Total Quizzes</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">📈</div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="average-score">0%</div>
-                                <div class="stat-label">Average Score</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">🔥</div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="study-streak">0</div>
-                                <div class="stat-label">Day Streak</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">⭐</div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="user-level">1</div>
-                                <div class="stat-label">Level</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="performance-chart"></canvas>
-                    </div>
-                </section>
+        <!-- Recent Achievements -->
+        <section class="dashboard-section">
+            <h2>🏆 Recent Achievements</h2>
+            <div id="recent-achievements" class="achievements-preview">
+                <!-- Recent achievements will be populated by JavaScript -->
+            </div>
+        </section>
 
-                <!-- Recent Achievements -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>🏆 Recent Achievements</h2>
-                    <div id="recent-achievements" class="grid grid-auto">
-                        <!-- Recent achievements will be populated by JavaScript -->
-                    </div>
-                </section>
-
-                <!-- Recent Activity -->
-                <section class="dashboard-section animate-fade-in">
-                    <h2>📋 Recent Activity</h2>
-                    <div id="recent-activity-home" class="grid" style="grid-template-columns: 1fr;">
-                        <!-- Recent activity will be populated by JavaScript -->
-                    </div>
-                </section>
-            </main>
-        </div>
-    </div>
+        <!-- Recent Activity -->
+        <section class="dashboard-section">
+            <h2>📋 Recent Activity</h2>
+            <div id="recent-activity-home" class="activity-preview">
+                <!-- Recent activity will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
 
     <footer>
         <div class="footer-content">
@@ -186,18 +142,5 @@
 
     <script src="main.js" defer></script>
     <script src="home.js" defer></script>
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileToggle = document.getElementById('mobile-menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (mobileToggle && sidebar) {
-                mobileToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('open');
-                });
-            }
-        });
-    </script>
 </body>
 </html>

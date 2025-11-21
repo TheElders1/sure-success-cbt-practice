@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Open Graph / Link Preview Meta Tags -->
     <meta property="og:type" content="website" />
@@ -21,128 +21,76 @@
     <meta property="twitter:card" content="summary_large_image" />
 </head>
 <body>
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">🎓</div>
-            <div class="sidebar-title">Sure Success</div>
+    <header>
+        <div class="header-content">
+            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
+            <div>
+                <h1>Sure Success CBT Practice</h1>
+                <p>Login to Your Account</p>
+            </div>
+            <button id="theme-toggle" class="nav-btn">🌙</button>
         </div>
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item active">
-                <span class="nav-icon">🔐</span>
-                <span class="nav-label">Login</span>
-            </a>
-            <a href="home.html" class="nav-item">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Home</span>
-            </a>
-            <a href="dashboard.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Analytics</span>
-            </a>
-            <a href="about.html" class="nav-item">
-                <span class="nav-icon">ℹ️</span>
-                <span class="nav-label">About</span>
-            </a>
-            <a href="help.html" class="nav-item">
-                <span class="nav-icon">❓</span>
-                <span class="nav-label">Help</span>
-            </a>
-            <a href="contact.html" class="nav-item">
-                <span class="nav-icon">📞</span>
-                <span class="nav-label">Contact</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="theme-toggle" class="theme-toggle-sidebar">
-                <span>🌙</span>
-                <span>Dark Mode</span>
-            </button>
+    </header>
+
+    <main id="login-setup">
+        <div class="setup-header">
+            <h2>Welcome Back!</h2>
+            <p class="setup-subtitle">Enter your details to access your personalized dashboard</p>
         </div>
-    </aside>
-
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
-
-    <!-- Main Content Wrapper -->
-    <div class="main-wrapper">
-        <div class="top-bar">
-            <h1 class="top-bar-title">Welcome Back</h1>
-            <div class="top-bar-actions"></div>
-        </div>
-
-        <div class="content-area">
-            <main id="login-setup" class="glass-card animate-fade-in">
-                <div class="setup-header text-center mb-4">
-                    <h2>Welcome Back!</h2>
-                    <p class="setup-subtitle" style="color: var(--text-secondary); margin-top: 8px;">Enter your details to access your personalized dashboard</p>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="name-input">Full Name:</label>
+                <div class="input-wrapper">
+                    <input type="text" id="name-input" placeholder="Enter your full name" required minlength="6">
+                    <span class="input-icon">👤</span>
                 </div>
-                
-                <form id="login-form">
-                    <div class="form-group">
-                        <div class="form-input-wrapper">
-                            <input type="text" id="name-input" class="form-input" placeholder=" " required minlength="6">
-                            <label for="name-input" class="form-label">Full Name</label>
-                        </div>
-                        <div class="form-feedback" id="name-feedback"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="form-input-wrapper">
-                            <select id="department-select" class="form-select" required>
-                                <option value="" disabled selected></option>
-                                <option value="Computer Science">🖥️ Computer Science</option>
-                                <option value="Cyber Security">🔒 Cyber Security</option>
-                                <option value="Data Science">📊 Data Science</option>
-                                <option value="Information Technology">💻 Information Technology</option>
-                                <option value="Software Engineering">⚙️ Software Engineering</option>
-                            </select>
-                            <label for="department-select" class="form-label">Select Department</label>
-                        </div>
-                        <div class="form-feedback" id="department-feedback"></div>
-                    </div>
-                    
-                    <div class="form-actions mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-                            <span>Login to Dashboard</span>
-                            <span>🚀</span>
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="grid grid-4 mt-4">
-                    <div class="stat-card">
-                        <div class="stat-icon">🏛️</div>
-                        <div class="stat-content">
-                            <div class="stat-number">5</div>
-                            <div class="stat-label">Departments</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📚</div>
-                        <div class="stat-content">
-                            <div class="stat-number">12+</div>
-                            <div class="stat-label">Courses</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">❓</div>
-                        <div class="stat-content">
-                            <div class="stat-number">100</div>
-                            <div class="stat-label">Questions</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📈</div>
-                        <div class="stat-content">
-                            <div class="stat-number">∞</div>
-                            <div class="stat-label">Progress</div>
-                        </div>
-                    </div>
+                <div class="form-feedback" id="name-feedback"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="department-select">Select Department:</label>
+                <div class="select-wrapper">
+                    <select id="department-select" required>
+                        <option value="" disabled selected>-- Please choose a department --</option>
+                        <option value="Computer Science">🖥️ Computer Science</option>
+                        <option value="Cyber Security">🔒 Cyber Security</option>
+                        <option value="Data Science">📊 Data Science</option>
+                        <option value="Information Technology">💻 Information Technology</option>
+                        <option value="Software Engineering">⚙️ Software Engineering</option>
+                    </select>
+                    <span class="select-arrow">▼</span>
                 </div>
-            </main>
+                <div class="form-feedback" id="department-feedback"></div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="segment-btn">
+                    <span class="btn-text">Login to Dashboard</span>
+                    <span class="btn-icon">🚀</span>
+                </button>
+            </div>
+        </form>
+        
+        <div class="quick-stats">
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Departments</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">12+</div>
+                <div class="stat-label">Courses</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100</div>
+                <div class="stat-label">Questions per Course</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Progress Tracking</div>
+            </div>
         </div>
-    </div>
+    </main>
     
     <footer>
         <div class="footer-content">
@@ -162,18 +110,5 @@
     </footer>
     
     <script src="main.js" defer></script>
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileToggle = document.getElementById('mobile-menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (mobileToggle && sidebar) {
-                mobileToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('open');
-                });
-            }
-        });
-    </script>
 </body>
 </html>
