@@ -73,12 +73,6 @@ export default function LoginPage() {
         return;
       }
 
-      if (!profileData.email_verified) {
-        setError('Please verify your email address before logging in.');
-        setLoading(false);
-        return;
-      }
-
       await supabase
         .from('users')
         .update({ last_visit: new Date().toISOString() })
