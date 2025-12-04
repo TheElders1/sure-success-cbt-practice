@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogIn, Eye, EyeOff, GraduationCap, BookOpen, Target, TrendingUp, AlertCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, GraduationCap, BookOpen, TrendingUp, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -243,18 +243,6 @@ export default function LoginPage() {
                 <div>
                   <div className="text-3xl font-bold text-gray-900 dark:text-white">15+</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Courses Available</div>
-                </div>
-              </div>
-            </Card>
-
-            <Card variant="elevated" padding="md">
-              <div className="flex items-center gap-4">
-                <div className="bg-blue-500/10 p-3 rounded-lg">
-                  <Target className="text-blue-600 dark:text-blue-400" size={32} />
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">100</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Questions per Course</div>
                 </div>
               </div>
             </Card>
