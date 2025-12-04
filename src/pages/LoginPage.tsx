@@ -1,24 +1,17 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, GraduationCap, BookOpen, Target, TrendingUp } from 'lucide-react';
+import { LogIn, Eye, EyeOff, GraduationCap, BookOpen, Target, TrendingUp, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useAuthStore } from '@/store/useAuthStore';
 import { supabase } from '@/lib/supabase';
 
-const departments = [
-  { value: 'Computer Science', label: 'Computer Science', icon: '💻' },
-  { value: 'Cyber Security', label: 'Cyber Security', icon: '🔒' },
-  { value: 'Data Science', label: 'Data Science', icon: '📊' },
-  { value: 'Information Technology', label: 'Information Technology', icon: '💼' },
-  { value: 'Software Engineering', label: 'Software Engineering', icon: '⚙️' },
-];
-
 export default function LoginPage() {
-  const [name, setName] = useState('');
-  const [department, setDepartment] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -27,80 +20,99 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (name.length < 6) {
-      setError('Name must be at least 6 characters long');
-      return;
-    }
-
-    if (!department) {
-      setError('Please select a department');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const { data: existingUsers, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('name', name)
-        .eq('department', department);
+      let email = emailOrUsername;
 
-      if (fetchError) throw fetchError;
-
-      let userData;
-
-      if (existingUsers && existingUsers.length > 0) {
-        userData = existingUsers[0];
-        const { error: updateError } = await supabase
+      if (!emailOrUsername.includes('@')) {
+        const { data: userData, error: userError } = await supabase
           .from('users')
-          .update({ last_visit: new Date().toISOString() })
-          .eq('id', userData.id);
+          .select('email')
+          .eq('username', emailOrUsername.toLowerCase())
+          .maybeSingle();
 
-        if (updateError) throw updateError;
-      } else {
-        const { data: newUser, error: insertError } = await supabase
-          .from('users')
-          .insert([
-            {
-              name,
-              department,
-              email: `${name.toLowerCase().replace(/\s+/g, '_')}@temp.com`,
-            },
-          ])
-          .select()
-          .single();
+        if (userError) throw userError;
 
-        if (insertError) throw insertError;
-        userData = newUser;
+        if (!userData) {
+          setError('Username not found');
+          setLoading(false);
+          return;
+        }
+
+        email = userData.email;
       }
 
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) throw signInError;
+
+      if (!authData.user) {
+        throw new Error('Login failed');
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authData.user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+
+      if (!profileData) {
+        throw new Error('User profile not found');
+      }
+
+      if (profileData.account_status === 'suspended') {
+        await supabase.auth.signOut();
+        setError('Your account has been suspended. Please contact support.');
+        setLoading(false);
+        return;
+      }
+
+      if (!profileData.email_verified) {
+        setError('Please verify your email address before logging in.');
+        setLoading(false);
+        return;
+      }
+
+      await supabase
+        .from('users')
+        .update({ last_visit: new Date().toISOString() })
+        .eq('id', authData.user.id);
+
       setUser({
-        id: userData.id,
-        name: userData.name,
-        department: userData.department,
-        totalXP: userData.total_xp || 0,
-        level: userData.level || 1,
-        studyStreak: userData.study_streak || 0,
-        longestStreak: userData.longest_streak || 0,
-        totalQuizzes: userData.total_quizzes_taken || 0,
-        perfectScores: userData.perfect_scores || 0,
-        averageScore: Number(userData.average_score) || 0,
-        lastVisit: userData.last_visit,
+        id: profileData.id,
+        name: profileData.name,
+        department: profileData.department,
+        totalXP: profileData.total_xp || 0,
+        level: profileData.level || 1,
+        studyStreak: profileData.study_streak || 0,
+        longestStreak: profileData.longest_streak || 0,
+        totalQuizzes: profileData.total_quizzes_taken || 0,
+        perfectScores: profileData.perfect_scores || 0,
+        averageScore: Number(profileData.average_score) || 0,
+        lastVisit: profileData.last_visit,
       });
 
       navigate('/home');
-    } catch (err) {
-      console.error('Authentication error:', err);
-      setError('Failed to login. Please try again.');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err.message.includes('Invalid login credentials')) {
+        setError('Invalid email/username or password');
+      } else {
+        setError(err.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Layout headerTitle="Sure Success CBT" headerSubtitle="Login to Your Account">
+    <Layout headerTitle="The Elders CBT" headerSubtitle="Login to Your Account">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <motion.div
@@ -110,68 +122,73 @@ export default function LoginPage() {
           >
             <Card variant="elevated" padding="lg">
               <div className="text-center mb-6">
+                <div className="flex justify-center mb-4">
+                  <div className="bg-brand-primary/10 p-4 rounded-full">
+                    <LogIn className="text-brand-primary" size={40} />
+                  </div>
+                </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   Welcome Back!
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Enter your details to access your personalized dashboard
+                  Login with your email or username
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Full Name
+                  <label
+                    htmlFor="emailOrUsername"
+                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    Email or Username
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter your full name"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 transition-all"
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                  {name.length > 0 && name.length < 6 && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                      {6 - name.length} more character{6 - name.length > 1 ? 's' : ''} needed
-                    </p>
-                  )}
+                  <input
+                    id="emailOrUsername"
+                    type="text"
+                    value={emailOrUsername}
+                    onChange={(e) => setEmailOrUsername(e.target.value)}
+                    placeholder="Enter your email or username"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                    required
+                  />
                 </div>
 
                 <div>
-                  <label htmlFor="department" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Select Department
-                  </label>
-                  <select
-                    id="department"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
-                    required
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   >
-                    <option value="">-- Please choose a department --</option>
-                    {departments.map((dept) => (
-                      <option key={dept.value} value={dept.value}>
-                        {dept.icon} {dept.label}
-                      </option>
-                    ))}
-                  </select>
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
 
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg text-sm"
+                    className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2"
                   >
-                    {error}
+                    <AlertCircle className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" size={20} />
+                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                   </motion.div>
                 )}
 
@@ -180,11 +197,22 @@ export default function LoginPage() {
                   variant="primary"
                   size="lg"
                   className="w-full"
-                  loading={loading}
-                  rightIcon={<Target size={20} />}
+                  disabled={loading}
                 >
-                  Login to Dashboard
+                  {loading ? 'Logging in...' : 'Login'}
                 </Button>
+
+                <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Don't have an account?{' '}
+                    <Link
+                      to="/register"
+                      className="text-brand-primary hover:text-brand-hover font-semibold transition-colors"
+                    >
+                      Register here
+                    </Link>
+                  </p>
+                </div>
               </form>
             </Card>
           </motion.div>
@@ -201,8 +229,8 @@ export default function LoginPage() {
                   <GraduationCap className="text-brand-primary" size={32} />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">5</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Departments</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">7</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Faculties</div>
                 </div>
               </div>
             </Card>
@@ -233,8 +261,8 @@ export default function LoginPage() {
 
             <Card variant="elevated" padding="md">
               <div className="flex items-center gap-4">
-                <div className="bg-purple-500/10 p-3 rounded-lg">
-                  <TrendingUp className="text-purple-600 dark:text-purple-400" size={32} />
+                <div className="bg-orange-500/10 p-3 rounded-lg">
+                  <TrendingUp className="text-orange-600 dark:text-orange-400" size={32} />
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-gray-900 dark:text-white">∞</div>
