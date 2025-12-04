@@ -26,7 +26,7 @@ export default function Header({ title = 'Sure Success CBT', subtitle }: HeaderP
             <img
               src="/ELD.png"
               alt="Logo"
-              className="h-12 w-12 object-contain"
+              className="h-12 w-12 object-cover rounded-full"
             />
             <div>
               <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
