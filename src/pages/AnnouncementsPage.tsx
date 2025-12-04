@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Megaphone, Calendar, AlertCircle, Info, AlertTriangle, XCircle } from 'lucide-react';
+import { Megaphone, Calendar, AlertCircle, Info, AlertTriangle, XCircle, ArrowLeft } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface Announcement {
   id: string;
@@ -15,6 +17,8 @@ interface Announcement {
 }
 
 export default function AnnouncementsPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -95,6 +99,22 @@ export default function AnnouncementsPage() {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {!isAuthenticated && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 px-4 py-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Login</span>
+            </button>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
