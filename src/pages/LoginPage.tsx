@@ -112,7 +112,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Layout headerTitle="The Elders CBT" headerSubtitle="Login to Your Account">
+    <Layout headerTitle="Sure Success CBT" headerSubtitle="Login to Your Account">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <motion.div

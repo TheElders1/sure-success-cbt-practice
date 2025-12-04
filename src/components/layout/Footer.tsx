@@ -36,7 +36,7 @@ export default function Footer() {
 
           <div className="border-t border-white/20 w-full pt-4 mt-2">
             <div className="flex flex-col items-center gap-2 text-sm text-white/80">
-              <p>&copy; 2025 The Elders CBT Practice. All rights reserved.</p>
+              <p>&copy; 2025 Sure Success CBT Practice. All rights reserved.</p>
               <div className="flex items-center gap-1">
                 <span>Made with</span>
                 <Heart size={14} className="fill-red-400 text-red-400" />

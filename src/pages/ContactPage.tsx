@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Mail, Phone, MessageCircle, Copy, Check } from 'lucide-react';
+import { Mail, Phone, MessageCircle, Copy, Check, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -167,6 +168,22 @@ export default function ContactPage() {
               <p>Sunday: Closed</p>
             </div>
           </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex justify-center"
+        >
+          <Link to="/">
+            <Button
+              variant="secondary"
+              leftIcon={<ArrowLeft size={18} />}
+            >
+              Back to Login
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </Layout>
