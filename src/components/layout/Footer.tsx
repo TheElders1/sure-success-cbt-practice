@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Phone, Info, HelpCircle, Heart } from 'lucide-react';
+import { Phone, Info, HelpCircle, Heart, Megaphone } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -12,6 +12,13 @@ export default function Footer() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-6">
+            <Link
+              to="/announcements"
+              className="flex items-center gap-2 hover:text-yellow-200 hover:scale-105 transition-all duration-300 group"
+            >
+              <Megaphone size={16} className="group-hover:rotate-12 transition-transform duration-300" />
+              <span>Announcements</span>
+            </Link>
             <Link
               to="/contact"
               className="flex items-center gap-2 hover:text-yellow-200 hover:scale-105 transition-all duration-300 group"

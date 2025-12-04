@@ -9,6 +9,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import HelpPage from './pages/HelpPage';
 import AdminPage from './pages/AdminPage';
+import AnnouncementsPage from './pages/AnnouncementsPage';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -34,6 +35,7 @@ function App() {
           path="/admin"
           element={isAuthenticated ? <AdminPage /> : <Navigate to="/" />}
         />
+        <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/help" element={<HelpPage />} />
