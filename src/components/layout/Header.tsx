@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Moon, Sun, LogOut, User } from 'lucide-react';
+import { Moon, Sun, LogOut, User, Shield } from 'lucide-react';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import Button from '../ui/Button';
@@ -47,6 +47,16 @@ export default function Header({ title = 'Sure Success CBT', subtitle }: HeaderP
 
             {user && (
               <>
+                <Link to="/admin">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<Shield size={16} />}
+                    className="text-white hover:bg-white/10"
+                  >
+                    <span className="hidden sm:inline">Admin</span>
+                  </Button>
+                </Link>
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg">
                   <User size={16} />
                   <span className="text-sm font-medium">{user.name}</span>
