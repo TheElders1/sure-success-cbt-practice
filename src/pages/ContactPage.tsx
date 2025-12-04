@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function ContactPage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
+  const { user } = useAuthStore();
 
   const copyToClipboard = async (text: string, type: 'email' | 'phone') => {
     try {
@@ -176,12 +178,12 @@ export default function ContactPage() {
           transition={{ delay: 0.5 }}
           className="flex justify-center"
         >
-          <Link to="/">
+          <Link to={user ? '/home' : '/'}>
             <Button
               variant="secondary"
               leftIcon={<ArrowLeft size={18} />}
             >
-              Back to Login
+              {user ? 'Back to Home' : 'Back to Login'}
             </Button>
           </Link>
         </motion.div>

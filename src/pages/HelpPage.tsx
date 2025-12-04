@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const faqs = [
   {
@@ -61,6 +62,7 @@ const faqs = [
 
 export default function HelpPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { user } = useAuthStore();
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -156,12 +158,12 @@ export default function HelpPage() {
           transition={{ delay: 0.6 }}
           className="flex justify-center"
         >
-          <Link to="/">
+          <Link to={user ? '/home' : '/'}>
             <Button
               variant="secondary"
               leftIcon={<ArrowLeft size={18} />}
             >
-              Back to Login
+              {user ? 'Back to Home' : 'Back to Login'}
             </Button>
           </Link>
         </motion.div>
