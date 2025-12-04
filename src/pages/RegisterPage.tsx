@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Upload, Eye, EyeOff, AlertCircle } from 'lucide-react';
@@ -7,25 +7,17 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
 
-const FACULTIES = [
-  'Science',
-  'Engineering',
-  'Social Sciences',
-  'Arts',
-  'Law',
-  'Medicine',
-  'Education',
-];
+interface Faculty {
+  id: string;
+  name: string;
+  code: string;
+}
 
-const DEPARTMENTS_BY_FACULTY: Record<string, string[]> = {
-  Science: ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology'],
-  Engineering: ['Computer Engineering', 'Electrical Engineering', 'Mechanical Engineering', 'Civil Engineering'],
-  'Social Sciences': ['Economics', 'Sociology', 'Political Science', 'Psychology'],
-  Arts: ['English', 'History', 'Philosophy', 'Linguistics'],
-  Law: ['Law'],
-  Medicine: ['Medicine and Surgery', 'Nursing', 'Pharmacy'],
-  Education: ['Educational Technology', 'Science Education', 'Arts Education'],
-};
+interface Department {
+  id: string;
+  name: string;
+  faculty_id: string;
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -34,6 +26,9 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [jambDocument, setJambDocument] = useState<File | null>(null);
+  const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [allDepartments, setAllDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -49,11 +44,37 @@ export default function RegisterPage() {
     confirmPassword: '',
   });
 
-  const [departments, setDepartments] = useState<string[]>([]);
+  useEffect(() => {
+    loadFacultiesAndDepartments();
+  }, []);
 
-  const handleFacultyChange = (faculty: string) => {
-    setFormData({ ...formData, faculty, department: '' });
-    setDepartments(DEPARTMENTS_BY_FACULTY[faculty] || []);
+  async function loadFacultiesAndDepartments() {
+    try {
+      const { data: facultiesData, error: facultiesError } = await supabase
+        .from('faculties')
+        .select('*')
+        .order('name');
+
+      if (facultiesError) throw facultiesError;
+
+      const { data: departmentsData, error: departmentsError } = await supabase
+        .from('departments')
+        .select('*')
+        .order('name');
+
+      if (departmentsError) throw departmentsError;
+
+      setFaculties(facultiesData || []);
+      setAllDepartments(departmentsData || []);
+    } catch (err) {
+      console.error('Error loading faculties and departments:', err);
+    }
+  }
+
+  const handleFacultyChange = (facultyId: string) => {
+    setFormData({ ...formData, faculty: facultyId, department: '' });
+    const filteredDepts = allDepartments.filter(d => d.faculty_id === facultyId);
+    setDepartments(filteredDepts);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -312,9 +333,9 @@ export default function RegisterPage() {
                     required
                   >
                     <option value="">Select Faculty</option>
-                    {FACULTIES.map((faculty) => (
-                      <option key={faculty} value={faculty}>
-                        {faculty}
+                    {faculties.map((faculty) => (
+                      <option key={faculty.id} value={faculty.id}>
+                        {faculty.name}
                       </option>
                     ))}
                   </select>
@@ -333,8 +354,8 @@ export default function RegisterPage() {
                   >
                     <option value="">Select Department</option>
                     {departments.map((dept) => (
-                      <option key={dept} value={dept}>
-                        {dept}
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name}
                       </option>
                     ))}
                   </select>

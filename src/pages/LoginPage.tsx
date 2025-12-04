@@ -229,7 +229,7 @@ export default function LoginPage() {
                   <GraduationCap className="text-brand-primary" size={32} />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">7</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">3</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Faculties</div>
                 </div>
               </div>
@@ -241,8 +241,8 @@ export default function LoginPage() {
                   <BookOpen className="text-green-600 dark:text-green-400" size={32} />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">15+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Courses Available</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">31</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Departments</div>
                 </div>
               </div>
             </Card>
