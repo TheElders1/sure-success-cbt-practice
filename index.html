@@ -1,114 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#510F64">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Sure Success CBT - Login</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/ELD.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#510F64" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <!-- Open Graph / Link Preview Meta Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://sure-success-cbt-practice.netlify.app/" />
-    <meta property="og:title" content="Sure Success CBT Practice - Login" />
-    <meta property="og:description" content="Login to access your personalized CBT practice dashboard." />
+    <meta property="og:title" content="Sure Success CBT Practice" />
+    <meta property="og:description" content="Modern CBT practice platform with comprehensive analytics and adaptive learning." />
     <meta property="og:image" content="https://sure-success-cbt-practice.netlify.app/ELD.png" />
     <meta property="twitter:card" content="summary_large_image" />
-</head>
-<body>
-    <header>
-        <div class="header-content">
-            <img src="ELD.png" alt="Sure Success CBT Practice Logo" id="header-logo">
-            <div>
-                <h1>Sure Success CBT Practice</h1>
-                <p>Login to Your Account</p>
-            </div>
-            <button id="theme-toggle" class="nav-btn">🌙</button>
-        </div>
-    </header>
 
-    <main id="login-setup">
-        <div class="setup-header">
-            <h2>Welcome Back!</h2>
-            <p class="setup-subtitle">Enter your details to access your personalized dashboard</p>
-        </div>
-        
-        <form id="login-form">
-            <div class="form-group">
-                <label for="name-input">Full Name:</label>
-                <div class="input-wrapper">
-                    <input type="text" id="name-input" placeholder="Enter your full name" required minlength="6">
-                    <span class="input-icon">👤</span>
-                </div>
-                <div class="form-feedback" id="name-feedback"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="department-select">Select Department:</label>
-                <div class="select-wrapper">
-                    <select id="department-select" required>
-                        <option value="" disabled selected>-- Please choose a department --</option>
-                        <option value="Computer Science">🖥️ Computer Science</option>
-                        <option value="Cyber Security">🔒 Cyber Security</option>
-                        <option value="Data Science">📊 Data Science</option>
-                        <option value="Information Technology">💻 Information Technology</option>
-                        <option value="Software Engineering">⚙️ Software Engineering</option>
-                    </select>
-                    <span class="select-arrow">▼</span>
-                </div>
-                <div class="form-feedback" id="department-feedback"></div>
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" class="segment-btn">
-                    <span class="btn-text">Login to Dashboard</span>
-                    <span class="btn-icon">🚀</span>
-                </button>
-            </div>
-        </form>
-        
-        <div class="quick-stats">
-            <div class="stat-item">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Departments</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">12+</div>
-                <div class="stat-label">Courses</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">100</div>
-                <div class="stat-label">Questions per Course</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">∞</div>
-                <div class="stat-label">Progress Tracking</div>
-            </div>
-        </div>
-    </main>
-    
-    <footer>
-        <div class="footer-content">
-            <p>Sure Success CBT - Practice Makes Perfect</p>
-            <div class="footer-links">
-                <a href="contact.html">📞 Contact</a>
-                <a href="about.html">ℹ️ About</a>
-                <a href="help.html">❓ Help</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-                <p>&copy; 2025 Sure Success CBT Practice. All rights reserved.</p>
-                <div class="footer-meta">
-                    <span>Made with ❤️ for students</span>
-                </div>
-            </div>
-    </footer>
-    
-    <script src="main.js" defer></script>
-</body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <title>Sure Success CBT Practice</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
