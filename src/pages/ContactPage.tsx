@@ -62,13 +62,13 @@ export default function ContactPage() {
                 </p>
                 <div className="w-full space-y-2">
                   <p className="font-mono text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                    support@suresuccess.com
+                    suresuccesscbt@gmail.com
                   </p>
                   <Button
                     variant="secondary"
                     size="sm"
                     className="w-full"
-                    onClick={() => copyToClipboard('support@suresuccess.com', 'email')}
+                    onClick={() => copyToClipboard('suresuccesscbt@gmail.com', 'email')}
                     leftIcon={copiedEmail ? <Check size={16} /> : <Copy size={16} />}
                   >
                     {copiedEmail ? 'Copied!' : 'Copy Email'}
@@ -96,18 +96,18 @@ export default function ContactPage() {
                 </p>
                 <div className="w-full space-y-2">
                   <p className="font-mono text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                    +234 (0) 123 456 7890
+                    +234 816 263 8106
                   </p>
                   <Button
                     variant="secondary"
                     size="sm"
                     className="w-full"
-                    onClick={() => copyToClipboard('+2340123456789', 'phone')}
+                    onClick={() => copyToClipboard('+2348162638106', 'phone')}
                     leftIcon={copiedPhone ? <Check size={16} /> : <Copy size={16} />}
                   >
                     {copiedPhone ? 'Copied!' : 'Copy Number'}
                   </Button>
-                  <a href="tel:+2340123456789">
+                  <a href="tel:+2348162638106">
                     <Button variant="primary" size="sm" className="w-full">
                       Call Now
                     </Button>
@@ -135,7 +135,7 @@ export default function ContactPage() {
                 Get instant support via WhatsApp. We're usually online and ready to help!
               </p>
               <a
-                href="https://wa.me/2340123456789"
+                href="https://wa.me/2348162638106"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full max-w-xs"
