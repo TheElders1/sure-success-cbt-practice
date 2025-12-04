@@ -73,6 +73,12 @@ export default function LoginPage() {
         return;
       }
 
+      const { data: departmentData } = await supabase
+        .from('departments')
+        .select('name')
+        .eq('id', profileData.department)
+        .maybeSingle();
+
       await supabase
         .from('users')
         .update({ last_visit: new Date().toISOString() })
@@ -81,7 +87,7 @@ export default function LoginPage() {
       setUser({
         id: profileData.id,
         name: profileData.name,
-        department: profileData.department,
+        department: departmentData?.name || profileData.department,
         totalXP: profileData.total_xp || 0,
         level: profileData.level || 1,
         studyStreak: profileData.study_streak || 0,
