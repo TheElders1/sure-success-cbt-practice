@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Target,
@@ -9,6 +10,7 @@ import {
   Trophy,
   BookOpen,
   Clock,
+  ArrowLeft,
 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
@@ -17,6 +19,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { supabase } from '@/lib/supabase';
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [quizHistory, setQuizHistory] = useState<any[]>([]);
@@ -55,6 +58,19 @@ export default function DashboardPage() {
   return (
     <Layout headerTitle="Performance Dashboard" headerSubtitle={`${user?.name}'s Analytics`}>
       <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <button
+            onClick={() => navigate('/home')}
+            className="flex items-center gap-2 px-4 py-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Home</span>
+          </button>
+        </motion.div>
+
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <TrendingUp className="text-brand-primary" />
