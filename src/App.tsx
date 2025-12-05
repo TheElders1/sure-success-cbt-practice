@@ -33,7 +33,7 @@ function App() {
         />
         <Route
           path="/admin"
-          element={isAuthenticated ? <AdminPage /> : <Navigate to="/" />}
+          element={<AdminPage />}
         />
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/about" element={<AboutPage />} />
