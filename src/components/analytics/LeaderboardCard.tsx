@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Trophy, TrendingUp, Award } from 'lucide-react';
 import Card from '@/components/ui/Card';
+import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface LeaderboardEntry {
   rank: number;
@@ -9,13 +12,52 @@ interface LeaderboardEntry {
   isCurrentUser?: boolean;
 }
 
-interface LeaderboardCardProps {
-  entries: LeaderboardEntry[];
-  title?: string;
-  subtitle?: string;
-}
+export default function LeaderboardCard() {
+  const { user } = useAuthStore();
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function LeaderboardCard({ entries, title = 'Leaderboard', subtitle }: LeaderboardCardProps) {
+  useEffect(() => {
+    if (user) {
+      loadLeaderboard();
+    }
+  }, [user]);
+
+  async function loadLeaderboard() {
+    if (!user) return;
+
+    try {
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('id, name, average_score, total_xp')
+        .order('total_xp', { ascending: false })
+        .limit(10);
+
+      const leaderboard = usersData?.map((u, index) => ({
+        rank: index + 1,
+        name: u.name || 'Anonymous',
+        score: Math.round(u.average_score || 0),
+        totalXP: u.total_xp || 0,
+        isCurrentUser: u.id === user.id,
+      })) || [];
+
+      setEntries(leaderboard);
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card variant="elevated" padding="lg">
+        <div className="flex items-center justify-center h-[300px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+        </div>
+      </Card>
+    );
+  }
   const getMedalIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="text-yellow-500" size={20} />;
     if (rank === 2) return <Award className="text-gray-400" size={20} />;
@@ -27,10 +69,8 @@ export default function LeaderboardCard({ entries, title = 'Leaderboard', subtit
     <Card variant="elevated" padding="lg">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
-          {subtitle && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{subtitle}</p>
-          )}
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Top Performers</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Overall Rankings</p>
         </div>
         <TrendingUp className="text-brand-primary" size={24} />
       </div>
