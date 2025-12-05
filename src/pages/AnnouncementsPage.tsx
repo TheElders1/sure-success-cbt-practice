@@ -99,21 +99,19 @@ export default function AnnouncementsPage() {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {!isAuthenticated && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4"
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <button
+            onClick={() => navigate(isAuthenticated ? '/home' : '/')}
+            className="flex items-center gap-2 px-4 py-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
           >
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-4 py-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Login</span>
-            </button>
-          </motion.div>
-        )}
+            <ArrowLeft className="w-4 h-4" />
+            <span>{isAuthenticated ? 'Back to Home' : 'Back to Login'}</span>
+          </button>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
