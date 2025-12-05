@@ -136,27 +136,27 @@ export default function QuizPage() {
           <div className="space-y-6">
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="bg-blue-100 p-6 rounded-full">
-                  <BookOpen className="text-blue-600" size={48} />
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-6 rounded-full">
+                  <BookOpen className="text-blue-600 dark:text-blue-400" size={48} />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {courseCode} Quiz
               </h2>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 Select a segment and mode to start practicing
               </p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Quiz Segment
                 </label>
                 <select
                   value={selectedSegment}
                   onChange={(e) => setSelectedSegment(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   disabled={state === 'loading'}
                 >
                   {[1, 2, 3, 4, 5].map((segment) => (
@@ -168,7 +168,7 @@ export default function QuizPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Quiz Mode
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -177,15 +177,15 @@ export default function QuizPage() {
                     disabled={state === 'loading'}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       selectedMode === 'practice'
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-blue-300'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500'
                     }`}
                   >
                     <Target className={`w-8 h-8 mx-auto mb-2 ${
-                      selectedMode === 'practice' ? 'text-blue-600' : 'text-gray-400'
+                      selectedMode === 'practice' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
                     }`} />
-                    <div className="font-semibold">Practice</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="font-semibold text-gray-900 dark:text-white">Practice</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       Untimed, with hints
                     </div>
                   </button>
@@ -195,15 +195,15 @@ export default function QuizPage() {
                     disabled={state === 'loading'}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       selectedMode === 'exam'
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-blue-300'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500'
                     }`}
                   >
                     <Clock className={`w-8 h-8 mx-auto mb-2 ${
-                      selectedMode === 'exam' ? 'text-blue-600' : 'text-gray-400'
+                      selectedMode === 'exam' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
                     }`} />
-                    <div className="font-semibold">Exam</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="font-semibold text-gray-900 dark:text-white">Exam</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       Timed, 1.5x XP
                     </div>
                   </button>
@@ -213,15 +213,15 @@ export default function QuizPage() {
                     disabled={state === 'loading'}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       selectedMode === 'quick'
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-blue-300'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500'
                     }`}
                   >
                     <Zap className={`w-8 h-8 mx-auto mb-2 ${
-                      selectedMode === 'quick' ? 'text-blue-600' : 'text-gray-400'
+                      selectedMode === 'quick' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
                     }`} />
-                    <div className="font-semibold">Quick Quiz</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="font-semibold text-gray-900 dark:text-white">Quick Quiz</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       10 random questions
                     </div>
                   </button>

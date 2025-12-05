@@ -72,14 +72,14 @@ export default function QuizInterface({ onComplete }: QuizInterfaceProps) {
   const maxTime = currentAttempt.quiz_mode === 'exam' ? totalQuestions * 90 : undefined;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               {currentAttempt.course_code} - Segment {currentAttempt.segment_number}
             </h1>
-            <p className="text-gray-600 capitalize">
+            <p className="text-gray-600 dark:text-gray-400 capitalize">
               {currentAttempt.quiz_mode} Mode
             </p>
           </div>
@@ -95,7 +95,7 @@ export default function QuizInterface({ onComplete }: QuizInterfaceProps) {
           <div className="lg:col-span-2 space-y-6">
             <QuestionCard />
 
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
               <Button
                 onClick={handleSubmit}
                 variant="primary"
@@ -105,7 +105,7 @@ export default function QuizInterface({ onComplete }: QuizInterfaceProps) {
                 Submit Quiz
               </Button>
               {unansweredCount > 0 && (
-                <p className="text-sm text-orange-600 mt-2 text-center">
+                <p className="text-sm text-orange-600 dark:text-orange-400 mt-2 text-center">
                   You have {unansweredCount} unanswered question{unansweredCount !== 1 ? 's' : ''}
                 </p>
               )}
@@ -120,12 +120,12 @@ export default function QuizInterface({ onComplete }: QuizInterfaceProps) {
 
       {showSubmitConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
             <div className="flex items-start gap-4">
               <AlertCircle className="w-6 h-6 text-orange-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-lg font-semibold mb-2">Submit Quiz?</h3>
-                <p className="text-gray-600 mb-4">
+                <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Submit Quiz?</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
                   You have {unansweredCount} unanswered question{unansweredCount !== 1 ? 's' : ''}.
                   Are you sure you want to submit?
                 </p>
