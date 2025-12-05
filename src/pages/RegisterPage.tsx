@@ -6,6 +6,8 @@ import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
+import { registrationRateLimiter } from '@/utils/rateLimiter';
+import { sanitizeInput, sanitizeEmail, validateEmail, validatePassword, validateUsername } from '@/utils/inputSanitizer';
 
 interface Faculty {
   id: string;
@@ -106,10 +108,12 @@ export default function RegisterPage() {
       setError('Date of birth is required');
       return false;
     }
-    if (!formData.email.trim() || !formData.email.includes('@')) {
+
+    if (!validateEmail(formData.email)) {
       setError('Valid email is required');
       return false;
     }
+
     if (!formData.faculty) {
       setError('Faculty is required');
       return false;
@@ -122,14 +126,19 @@ export default function RegisterPage() {
       setError('JAMB registration number is required');
       return false;
     }
-    if (!formData.username.trim() || formData.username.length < 3) {
-      setError('Username must be at least 3 characters');
+
+    const usernameValidation = validateUsername(formData.username);
+    if (!usernameValidation.valid) {
+      setError(usernameValidation.errors[0]);
       return false;
     }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.errors[0]);
       return false;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
@@ -149,11 +158,24 @@ export default function RegisterPage() {
       return;
     }
 
+    const identifier = sanitizeEmail(formData.email);
+    const rateLimit = registrationRateLimiter.checkLimit(identifier);
+
+    if (!rateLimit.allowed) {
+      const resetTime = rateLimit.resetTime ? new Date(rateLimit.resetTime) : null;
+      const minutes = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 60000) : 120;
+      setError(`Too many registration attempts. Please try again in ${minutes} minutes.`);
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const sanitizedEmail = sanitizeEmail(formData.email);
+      const sanitizedUsername = formData.username.toLowerCase().trim();
+
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
+        email: sanitizedEmail,
         password: formData.password,
       });
 
@@ -163,22 +185,26 @@ export default function RegisterPage() {
         throw new Error('Failed to create user account');
       }
 
-      const fullName = [formData.firstName, formData.middleName, formData.lastName]
+      const fullName = [
+        sanitizeInput(formData.firstName),
+        sanitizeInput(formData.middleName),
+        sanitizeInput(formData.lastName)
+      ]
         .filter(Boolean)
         .join(' ');
 
       const { error: profileError } = await supabase.from('users').insert({
         id: authData.user.id,
-        first_name: formData.firstName,
-        middle_name: formData.middleName || null,
-        last_name: formData.lastName,
+        first_name: sanitizeInput(formData.firstName),
+        middle_name: formData.middleName ? sanitizeInput(formData.middleName) : null,
+        last_name: sanitizeInput(formData.lastName),
         name: fullName,
-        email: formData.email,
+        email: sanitizedEmail,
         date_of_birth: formData.dateOfBirth,
         faculty: formData.faculty,
         department: formData.department,
-        jamb_reg_number: formData.jambRegNumber,
-        username: formData.username,
+        jamb_reg_number: formData.jambRegNumber.toUpperCase().trim(),
+        username: sanitizedUsername,
         email_verified: false,
         jamb_verified: false,
         account_status: 'pending',
@@ -213,10 +239,12 @@ export default function RegisterPage() {
         }).eq('id', authData.user.id);
       }
 
+      registrationRateLimiter.recordAttempt(identifier, true);
       alert('Registration successful! Please check your email to verify your account.');
       navigate('/');
     } catch (err: any) {
       console.error('Registration error:', err);
+      registrationRateLimiter.recordAttempt(identifier, false);
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);

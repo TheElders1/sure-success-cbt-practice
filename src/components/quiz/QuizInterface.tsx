@@ -5,6 +5,8 @@ import QuizTimer from './QuizTimer';
 import QuizProgress from './QuizProgress';
 import QuestionCard from './QuestionCard';
 import QuizNavigation from './QuizNavigation';
+import QuizControls from './QuizControls';
+import PauseOverlay from './PauseOverlay';
 import Button from '../ui/Button';
 
 interface QuizInterfaceProps {
@@ -73,6 +75,8 @@ export default function QuizInterface({ onComplete }: QuizInterfaceProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <PauseOverlay />
+
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -88,6 +92,8 @@ export default function QuizInterface({ onComplete }: QuizInterfaceProps) {
             onTimeUp={confirmSubmit}
           />
         </div>
+
+        <QuizControls />
 
         <QuizProgress />
 

@@ -7,6 +7,8 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useAuthStore } from '@/store/useAuthStore';
 import { supabase } from '@/lib/supabase';
+import { loginRateLimiter } from '@/utils/rateLimiter';
+import { sanitizeEmail, sanitizeUsername } from '@/utils/inputSanitizer';
 
 export default function LoginPage() {
   const [emailOrUsername, setEmailOrUsername] = useState('');
@@ -22,25 +24,40 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
+    const identifier = emailOrUsername.toLowerCase();
+
+    const rateLimit = loginRateLimiter.checkLimit(identifier);
+    if (!rateLimit.allowed) {
+      const resetTime = rateLimit.resetTime ? new Date(rateLimit.resetTime) : null;
+      const minutes = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 60000) : 30;
+      setError(`Too many login attempts. Please try again in ${minutes} minutes.`);
+      setLoading(false);
+      return;
+    }
+
     try {
       let email = emailOrUsername;
 
       if (!emailOrUsername.includes('@')) {
+        const sanitizedUsername = sanitizeUsername(emailOrUsername);
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('email')
-          .eq('username', emailOrUsername.toLowerCase())
+          .eq('username', sanitizedUsername)
           .maybeSingle();
 
         if (userError) throw userError;
 
         if (!userData) {
+          loginRateLimiter.recordAttempt(identifier, false);
           setError('Username not found');
           setLoading(false);
           return;
         }
 
         email = userData.email;
+      } else {
+        email = sanitizeEmail(emailOrUsername);
       }
 
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -68,10 +85,13 @@ export default function LoginPage() {
 
       if (profileData.account_status === 'suspended') {
         await supabase.auth.signOut();
+        loginRateLimiter.recordAttempt(identifier, false);
         setError('Your account has been suspended. Please contact support.');
         setLoading(false);
         return;
       }
+
+      loginRateLimiter.recordAttempt(identifier, true);
 
       const { data: departmentData } = await supabase
         .from('departments')
@@ -101,6 +121,7 @@ export default function LoginPage() {
       navigate('/home');
     } catch (err: any) {
       console.error('Login error:', err);
+      loginRateLimiter.recordAttempt(identifier, false);
       if (err.message.includes('Invalid login credentials')) {
         setError('Invalid email/username or password');
       } else {
