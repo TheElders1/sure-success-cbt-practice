@@ -127,8 +127,8 @@ export default function QuizPage() {
     >
       <div className="max-w-4xl mx-auto">
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800">{error}</p>
+          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <p className="text-red-800 dark:text-red-300">{error}</p>
           </div>
         )}
 
@@ -229,24 +229,34 @@ export default function QuizPage() {
               </div>
             </div>
 
-            <Button
-              onClick={handleStartQuiz}
-              disabled={state === 'loading'}
-              variant="primary"
-              className="w-full"
-            >
-              {state === 'loading' ? (
-                <>
-                  <Loader className="w-5 h-5 mr-2 animate-spin" />
-                  Loading Questions...
-                </>
-              ) : (
-                <>
-                  <PlayCircle className="w-5 h-5 mr-2" />
-                  Start Quiz
-                </>
-              )}
-            </Button>
+            <div className="space-y-3">
+              <Button
+                onClick={handleStartQuiz}
+                disabled={state === 'loading'}
+                variant="primary"
+                className="w-full"
+              >
+                {state === 'loading' ? (
+                  <>
+                    <Loader className="w-5 h-5 mr-2 animate-spin" />
+                    Loading Questions...
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className="w-5 h-5 mr-2" />
+                    Start Quiz
+                  </>
+                )}
+              </Button>
+
+              <button
+                onClick={() => navigate('/home')}
+                className="w-full px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 font-semibold flex items-center justify-center gap-2"
+              >
+                <BookOpen className="w-5 h-5" />
+                Choose Another Course
+              </button>
+            </div>
           </div>
         </Card>
       </div>
