@@ -1,14 +1,13 @@
-import { Pause, Play, Bookmark, AlertTriangle, Filter, X } from 'lucide-react';
+import { Bookmark, AlertTriangle, Filter, X } from 'lucide-react';
 import { useQuizStore } from '@/store/useQuizStore';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 
 export default function QuizControls() {
-  const { isPaused, pauseQuiz, resumeQuiz, showOnlyMarked, showOnlyIncorrect, toggleShowOnlyMarked, toggleShowOnlyIncorrect, currentAttempt } = useQuizStore();
+  const { showOnlyMarked, showOnlyIncorrect, toggleShowOnlyMarked, toggleShowOnlyIncorrect, currentAttempt } = useQuizStore();
 
   if (!currentAttempt) return null;
 
-  const canPause = currentAttempt.quiz_mode === 'practice';
   const markedCount = Array.from(currentAttempt.answers.values()).filter(a => a.is_marked).length;
   const incorrectCount = Array.from(currentAttempt.answers.values()).filter(a => {
     const question = currentAttempt.questions.find(q => q.id === a.question_id);
@@ -18,27 +17,6 @@ export default function QuizControls() {
   return (
     <Card variant="default" padding="sm">
       <div className="flex flex-wrap gap-2">
-        {canPause && (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={isPaused ? resumeQuiz : pauseQuiz}
-            className="gap-2"
-          >
-            {isPaused ? (
-              <>
-                <Play size={16} />
-                Resume
-              </>
-            ) : (
-              <>
-                <Pause size={16} />
-                Pause
-              </>
-            )}
-          </Button>
-        )}
-
         <Button
           variant={showOnlyMarked ? 'primary' : 'secondary'}
           size="sm"
