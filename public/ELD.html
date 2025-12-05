@@ -205,6 +205,11 @@
 
             // Check credentials
             if (email === 'admin@theelders.sure' && password === 'SAMUEL0120') {
+                // Store admin session in localStorage
+                localStorage.setItem('eld_admin_session', JSON.stringify({
+                    email: email,
+                    loginTime: Date.now()
+                }));
                 // Successful login - redirect to admin page
                 window.location.href = '/admin';
             } else {

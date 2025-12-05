@@ -82,7 +82,10 @@ export default function AdminPage() {
   });
 
   useEffect(() => {
-    if (!user) {
+    // Check both Supabase user and ELD admin session
+    const adminSession = localStorage.getItem('eld_admin_session');
+
+    if (!user && !adminSession) {
       window.location.href = '/ELD.html';
       return;
     }
