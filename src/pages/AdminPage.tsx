@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useAuthStore } from '../store/useAuthStore';
 import Layout from '../components/layout/Layout';
 import {
   Users, Activity, TrendingUp, Award, Flame, BarChart3,
   Search, Download, Trash2, Eye, Shield, Database,
-  RefreshCw, Settings, Megaphone, Plus
+  RefreshCw, Settings, Megaphone, Plus, LogOut
 } from 'lucide-react';
 
 interface UserData {
@@ -56,11 +55,11 @@ interface Announcement {
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserData[]>([]);
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [adminEmail, setAdminEmail] = useState<string>('');
   const [stats, setStats] = useState<SystemStats>({
     totalUsers: 0,
     totalQuizAttempts: 0,
@@ -82,15 +81,57 @@ export default function AdminPage() {
   });
 
   useEffect(() => {
-    // Check both Supabase user and ELD admin session
-    const adminSession = localStorage.getItem('eld_admin_session');
-
-    if (!user && !adminSession) {
+    const isValidAdminSession = checkAdminSession();
+    if (!isValidAdminSession) {
       window.location.href = '/ELD.html';
       return;
     }
     loadAdminData();
-  }, [user, navigate]);
+  }, [navigate]);
+
+  function checkAdminSession(): boolean {
+    const adminSessionStr = localStorage.getItem('eld_admin_session');
+
+    if (!adminSessionStr) {
+      return false;
+    }
+
+    try {
+      const adminSession = JSON.parse(adminSessionStr);
+
+      if (!adminSession.email || !adminSession.loginTime) {
+        localStorage.removeItem('eld_admin_session');
+        return false;
+      }
+
+      if (adminSession.email !== 'admin@theelders.sure') {
+        localStorage.removeItem('eld_admin_session');
+        return false;
+      }
+
+      const SESSION_DURATION = 24 * 60 * 60 * 1000;
+      const currentTime = Date.now();
+      const sessionAge = currentTime - adminSession.loginTime;
+
+      if (sessionAge > SESSION_DURATION) {
+        localStorage.removeItem('eld_admin_session');
+        return false;
+      }
+
+      setAdminEmail(adminSession.email);
+      return true;
+    } catch (error) {
+      localStorage.removeItem('eld_admin_session');
+      return false;
+    }
+  }
+
+  function handleAdminLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('eld_admin_session');
+      window.location.href = '/ELD.html';
+    }
+  }
 
   async function loadAdminData() {
     setLoading(true);
@@ -247,7 +288,7 @@ export default function AdminPage() {
       content: announcementForm.content,
       priority: announcementForm.priority,
       expires_at: announcementForm.expires_at || null,
-      created_by: user?.id
+      created_by: null
     });
 
     if (error) {
@@ -340,6 +381,22 @@ export default function AdminPage() {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm text-blue-900 dark:text-blue-300">
+              Logged in as: <strong>{adminEmail}</strong>
+            </span>
+          </div>
+          <button
+            onClick={handleAdminLogout}
+            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
+
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
