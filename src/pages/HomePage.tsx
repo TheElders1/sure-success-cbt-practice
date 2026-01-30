@@ -10,11 +10,18 @@ import {
   BarChart3,
   Award,
   Clock,
+  Trophy,
+  Users,
+  Zap,
+  ArrowRight,
 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import StatCard from '@/components/ui/StatCard';
+import DailyChallenges from '@/components/gamification/DailyChallenges';
+import BadgeDisplay from '@/components/gamification/BadgeDisplay';
+import StreakMultiplier from '@/components/gamification/StreakMultiplier';
 import { useAuthStore } from '@/store/useAuthStore';
 import { supabase } from '@/lib/supabase';
 
@@ -235,6 +242,109 @@ export default function HomePage() {
               iconColor="text-purple-600"
               delay={0.3}
             />
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Zap className="text-brand-primary" />
+              Daily Challenge
+            </h2>
+            <DailyChallenges />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Flame className="text-brand-primary" />
+              Streak Bonus
+            </h2>
+            <StreakMultiplier streak={user?.studyStreak || 0} />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Trophy className="text-brand-primary" />
+              Achievements & Badges
+            </h2>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate('/achievements')}
+              rightIcon={<ArrowRight size={16} />}
+            >
+              View All
+            </Button>
+          </div>
+          <BadgeDisplay />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Users className="text-brand-primary" />
+              Team Competitions
+            </h2>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate('/competitions')}
+              rightIcon={<ArrowRight size={16} />}
+            >
+              View Leaderboard
+            </Button>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card variant="elevated" padding="lg">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <div className="bg-gradient-to-br from-blue-500 to-purple-500 p-4 rounded-full">
+                    <Users className="text-white" size={40} />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Department Rankings
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  Compete with other departments and climb the rankings
+                </p>
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                  onClick={() => navigate('/competitions')}
+                  rightIcon={<Trophy size={18} />}
+                >
+                  View Rankings
+                </Button>
+              </div>
+            </Card>
+
+            <Card variant="elevated" padding="lg">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <div className="bg-gradient-to-br from-yellow-500 to-orange-500 p-4 rounded-full">
+                    <Award className="text-white" size={40} />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Your Achievements
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  Track progress toward exclusive badges and rewards
+                </p>
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                  onClick={() => navigate('/achievements')}
+                  rightIcon={<Star size={18} />}
+                >
+                  View All Achievements
+                </Button>
+              </div>
+            </Card>
           </div>
         </div>
 
