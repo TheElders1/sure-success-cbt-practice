@@ -52,7 +52,7 @@ Your CBT practice platform has been successfully modernized with cutting-edge we
 
 ## Project Structure
 
-```
+\`\`\`
 sure-success-cbt/
 ├── src/
 │   ├── components/
@@ -90,7 +90,7 @@ sure-success-cbt/
 ├── tsconfig.json
 ├── tailwind.config.js
 └── .env
-```
+\`\`\`
 
 ## Getting Started
 
@@ -101,7 +101,7 @@ sure-success-cbt/
 
 ### Installation
 
-```bash
+\`\`\`bash
 # Install dependencies
 npm install
 
@@ -113,16 +113,16 @@ npm run build
 
 # Preview production build
 npm run preview
-```
+\`\`\`
 
 ### Environment Variables
 
 The `.env` file already contains your Supabase credentials:
 
-```
+\`\`\`
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_SUPABASE_ANON_KEY=your_anon_key
-```
+\`\`\`
 
 ## Features
 
@@ -160,7 +160,7 @@ The quiz functionality is being migrated to React with enhanced features:
 
 ### Button Component
 
-```tsx
+\`\`\`tsx
 import Button from '@/components/ui/Button';
 import { Target } from 'lucide-react';
 
@@ -172,22 +172,22 @@ import { Target } from 'lucide-react';
 >
   Click Me
 </Button>
-```
+\`\`\`
 
 ### Card Component
 
-```tsx
+\`\`\`tsx
 import Card from '@/components/ui/Card';
 
 <Card variant="elevated" padding="lg" hoverable>
   <h3>Card Title</h3>
   <p>Card content goes here</p>
 </Card>
-```
+\`\`\`
 
 ### StatCard Component
 
-```tsx
+\`\`\`tsx
 import StatCard from '@/components/ui/StatCard';
 import { Target } from 'lucide-react';
 
@@ -198,7 +198,7 @@ import { Target } from 'lucide-react';
   iconColor="text-blue-600"
   delay={0.1}
 />
-```
+\`\`\`
 
 ## Database Schema
 
@@ -228,7 +228,7 @@ import { Target } from 'lucide-react';
 
 The project uses TailwindCSS with custom brand colors:
 
-```css
+\`\`\`css
 /* Primary brand color */
 bg-brand-primary hover:bg-brand-hover
 
@@ -237,13 +237,13 @@ dark:bg-gray-800 dark:text-white
 
 /* Custom animations */
 animate-slide-in animate-fade-in animate-scale-in
-```
+\`\`\`
 
 ### Theme Customization
 
 Edit `tailwind.config.js` to customize colors, spacing, and animations:
 
-```js
+\`\`\`js
 theme: {
   extend: {
     colors: {
@@ -254,15 +254,15 @@ theme: {
     },
   },
 }
-```
+\`\`\`
 
 ## Deployment
 
 ### Build for Production
 
-```bash
+\`\`\`bash
 npm run build
-```
+\`\`\`
 
 This creates optimized files in the `dist/` directory.
 
@@ -285,7 +285,7 @@ This creates optimized files in the `dist/` directory.
 
 The build warns about chunk size. To optimize further:
 
-```js
+\`\`\`js
 // vite.config.ts
 build: {
   rollupOptions: {
@@ -298,7 +298,7 @@ build: {
     },
   },
 }
-```
+\`\`\`
 
 ## Migration Notes
 
@@ -323,22 +323,22 @@ User data will be automatically migrated from localStorage to Supabase on first 
 
 If you encounter build errors:
 
-```bash
+\`\`\`bash
 # Clear cache and reinstall
 rm -rf node_modules dist
 npm install
 npm run build
-```
+\`\`\`
 
 ### Development Server Issues
 
-```bash
+\`\`\`bash
 # Kill any process using port 3000
 npx kill-port 3000
 
 # Restart dev server
 npm run dev
-```
+\`\`\`
 
 ### Database Connection
 
