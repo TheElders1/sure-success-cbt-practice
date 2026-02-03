@@ -40,8 +40,11 @@ const App: React.FC = () => {
   const { isDark } = useThemeStore();
 
   useEffect(() => {
+    console.log('[v0] App mounted, theme:', isDark);
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
+
+  console.log('[v0] App rendering');
 
   return (
     <BrowserRouter>
